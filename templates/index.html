@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>やんわりNO – 断り文ジェネレーター</title>
+  <meta name="description" content="飲み会・合コン・バイトなどあらゆる断りシーンに対応。状況を選ぶだけで自然な断り文をAIが即生成。" />
+  <meta property="og:title" content="やんわりNO – 断り文ジェネレーター" />
+  <meta property="og:description" content="断るのが苦手な人へ。状況を選ぶだけで自然な断り文が完成。" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #7C3AED;
+      --primary-light: #A78BFA;
+      --primary-pale: #EDE9FE;
+      --accent: #EC4899;
+      --bg: #F5F3FF;
+      --card: #FFFFFF;
+      --text: #1F2937;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic UI', 'Meiryo', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 48px;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+      padding: 36px 20px 48px;
+      text-align: center;
+      color: #fff;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .header .tagline {
+      font-size: 14px;
+      opacity: 0.88;
+      line-height: 1.6;
+    }
+
+    /* ── Container ── */
+    .container {
+      max-width: 600px;
+      margin: -24px auto 0;
+      padding: 0 16px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 22px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 16px rgba(124, 58, 237, 0.08);
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Chips ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      padding: 8px 15px;
+      border-radius: 100px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      line-height: 1;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .chip:hover { border-color: var(--primary-light); color: var(--primary); }
+    .chip.selected {
+      background: var(--primary-pale);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* ── Textarea ── */
+    textarea {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      line-height: 1.6;
+    }
+    textarea:focus { border-color: var(--primary); }
+    textarea::placeholder { color: var(--muted); }
+
+    /* ── Generate Button ── */
+    .btn-generate {
+      width: 100%;
+      padding: 17px;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, #7C3AED 0%, #EC4899 100%);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-generate:hover:not(:disabled) { opacity: 0.9; }
+    .btn-generate:active:not(:disabled) { transform: scale(0.98); }
+    .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    .results-header {
+      text-align: center;
+      margin: 24px 0 14px;
+      font-weight: 800;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .result-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 16px rgba(124, 58, 237, 0.08);
+      border-left: 4px solid var(--primary);
+    }
+
+    .result-type-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+      background: var(--primary-pale);
+      padding: 4px 10px;
+      border-radius: 100px;
+      margin-bottom: 12px;
+    }
+
+    .result-text {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 14px;
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-copy:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-copy.copied {
+      background: var(--primary-pale);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ── Action Buttons ── */
+    .btn-share {
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      border: none;
+      background: #0f0f0f;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-share:hover { background: #333; }
+
+    .btn-retry {
+      width: 100%;
+      padding: 15px;
+      border-radius: 14px;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-retry:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 28px;
+    }
+    .footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ── Utility ── */
+    .hidden { display: none !important; }
+
+    /* ── Error toast ── */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1F2937;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 999;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-badge">AI Powered</div>
+  <h1>🙅 やんわりNO</h1>
+  <p class="tagline">断るのが苦手な人へ。<br>状況を選ぶだけで自然な断り文が完成。</p>
+</div>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- Situation -->
+  <div class="card">
+    <div class="section-label">① 断りたいシチュエーション</div>
+    <div class="chips" id="situation-chips">
+      <button class="chip" data-group="situation" data-value="nomikai"     onclick="selectChip(this)">🍻 飲み会・食事会</button>
+      <button class="chip" data-group="situation" data-value="goukon"      onclick="selectChip(this)">💕 合コン・デート</button>
+      <button class="chip" data-group="situation" data-value="shift"       onclick="selectChip(this)">⏰ バイトシフト交代</button>
+      <button class="chip" data-group="situation" data-value="nijikai"     onclick="selectChip(this)">🌙 2次会・3次会</button>
+      <button class="chip" data-group="situation" data-value="event"       onclick="selectChip(this)">📅 イベント・勉強会</button>
+      <button class="chip" data-group="situation" data-value="date"        onclick="selectChip(this)">🚶 個人的なお出かけ</button>
+      <button class="chip" data-group="situation" data-value="other"       onclick="selectChip(this)">✏️ その他</button>
+    </div>
+  </div>
+
+  <!-- Relationship -->
+  <div class="card">
+    <div class="section-label">② 相手との関係</div>
+    <div class="chips" id="relationship-chips">
+      <button class="chip" data-group="relationship" data-value="friend"       onclick="selectChip(this)">👫 友達・同期</button>
+      <button class="chip" data-group="relationship" data-value="senpai"       onclick="selectChip(this)">🎓 先輩・上司</button>
+      <button class="chip" data-group="relationship" data-value="kouhai"       onclick="selectChip(this)">🌱 後輩・部下</button>
+      <button class="chip" data-group="relationship" data-value="acquaintance" onclick="selectChip(this)">🤝 あまり親しくない人</button>
+      <button class="chip" data-group="relationship" data-value="other"        onclick="selectChip(this)">✏️ その他</button>
+    </div>
+  </div>
+
+  <!-- Details -->
+  <div class="card">
+    <div class="section-label">③ 補足情報（任意）</div>
+    <textarea id="details" rows="3"
+      placeholder="例：「先週も断ったから気まずい」「どうしても行きたくない雰囲気を出したくない」「急な用事ができたと伝えたい」など"></textarea>
+  </div>
+
+  <!-- Generate -->
+  <button class="btn-generate" id="btn-generate" onclick="generate()">
+    <div class="spinner" id="spinner"></div>
+    <span id="btn-text">✨ 断り文を生成する</span>
+  </button>
+
+  <!-- Results (hidden until generated) -->
+  <div id="results" class="hidden">
+    <div class="results-header">👇 生成された断り文</div>
+
+    <div class="result-card" id="card-1">
+      <span class="result-type-badge" id="badge-1">💬 さらりと断る系</span>
+      <div class="result-text" id="result-1"></div>
+      <button class="btn-copy" id="copy-1" onclick="copyText(1)">📋 コピー</button>
+    </div>
+
+    <div class="result-card" id="card-2">
+      <span class="result-type-badge" id="badge-2">🙏 気持ち重視系</span>
+      <div class="result-text" id="result-2"></div>
+      <button class="btn-copy" id="copy-2" onclick="copyText(2)">📋 コピー</button>
+    </div>
+
+    <div class="result-card" id="card-3">
+      <span class="result-type-badge" id="badge-3">🤝 次につなげる系</span>
+      <div class="result-text" id="result-3"></div>
+      <button class="btn-copy" id="copy-3" onclick="copyText(3)">📋 コピー</button>
+    </div>
+
+    <!-- Share -->
+    <button class="btn-share" onclick="shareToX()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+      Xでシェアする
+    </button>
+
+    <button class="btn-retry" onclick="generate()">🔄 もう一度生成する</button>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Footer -->
+<div class="footer">
+  <p>made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a> × Claude AI &nbsp;|&nbsp; <a href="https://twitter.com/ai_jikken10man" target="_blank">フォローして応援</a></p>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const selected = { situation: null, relationship: null };
+
+  function selectChip(el) {
+    const group = el.dataset.group;
+    document.querySelectorAll(`.chip[data-group="${group}"]`).forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selected[group] = el.dataset.value;
+  }
+
+  async function generate() {
+    if (!selected.situation) { showToast('断りたいシチュエーションを選んでください'); return; }
+    if (!selected.relationship) { showToast('相手との関係を選んでください'); return; }
+
+    const btn     = document.getElementById('btn-generate');
+    const btnText = document.getElementById('btn-text');
+    const spinner = document.getElementById('spinner');
+    const results = document.getElementById('results');
+
+    btn.disabled = true;
+    btnText.textContent = '考え中...';
+    spinner.style.display = 'block';
+    results.classList.add('hidden');
+
+    try {
+      const res = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          situation:    selected.situation,
+          relationship: selected.relationship,
+          details:      document.getElementById('details').value,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        parseAndDisplay(data.result);
+        results.classList.remove('hidden');
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        showToast('エラーが発生しました。もう一度お試しください。');
+      }
+    } catch (e) {
+      showToast('通信エラーが発生しました。');
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = '✨ 断り文を生成する';
+      spinner.style.display = 'none';
+    }
+  }
+
+  function parseAndDisplay(text) {
+    const defs = [
+      { id: 1, key: 'さらりと断る系',  badge: '💬 さらりと断る系' },
+      { id: 2, key: '気持ち重視系',    badge: '🙏 気持ち重視系' },
+      { id: 3, key: '次につなげる系',  badge: '🤝 次につなげる系' },
+    ];
+
+    const contents = {};
+
+    defs.forEach((def, i) => {
+      const startMarker = `【${def.key}】`;
+      const nextKey     = defs[i + 1] ? `【${defs[i + 1].key}】` : null;
+
+      let startIdx = text.indexOf(startMarker);
+      if (startIdx === -1) return;
+      startIdx += startMarker.length;
+
+      const endIdx = nextKey ? text.indexOf(nextKey) : text.length;
+      let chunk = text.substring(startIdx, endIdx !== -1 ? endIdx : text.length);
+
+      // Remove sub-label line like （シンプルで...）
+      chunk = chunk.replace(/^[\s\n]*（[^）\n]*）[\s\n]*/m, '').trim();
+      // Remove wrapping [] brackets if AI added them
+      chunk = chunk.replace(/^\[/, '').replace(/\]$/, '').trim();
+
+      contents[def.id] = chunk;
+    });
+
+    defs.forEach(def => {
+      const card    = document.getElementById(`card-${def.id}`);
+      const textEl  = document.getElementById(`result-${def.id}`);
+      const badgeEl = document.getElementById(`badge-${def.id}`);
+      const copyBtn = document.getElementById(`copy-${def.id}`);
+
+      if (contents[def.id]) {
+        textEl.textContent = contents[def.id];
+        badgeEl.textContent = def.badge;
+        card.style.display = 'block';
+        copyBtn.textContent = '📋 コピー';
+        copyBtn.classList.remove('copied');
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  function copyText(id) {
+    const text = document.getElementById(`result-${id}`).textContent;
+    const btn  = document.getElementById(`copy-${id}`);
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '✅ コピーしました！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 コピー';
+        btn.classList.remove('copied');
+      }, 2200);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      btn.textContent = '✅ コピーしました！';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.textContent = '📋 コピー';
+        btn.classList.remove('copied');
+      }, 2200);
+    });
+  }
+
+  function shareToX() {
+    const labels = {
+      nomikai: '飲み会', goukon: '合コン', shift: 'バイトシフト',
+      nijikai: '2次会',  event: 'イベント', date: 'お出かけ', other: '誘い',
+    };
+    const sit  = labels[selected.situation] || '誘い';
+    const tweet = `${sit}を断る文章をAIで即生成できるやつ作った👀\n\nこういうの欲しかったwってなった\n\n🔗 やんわりNO\nhttps://yanwari-no.onrender.com\n\n#やんわりNO #断りジェネレーター`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>
