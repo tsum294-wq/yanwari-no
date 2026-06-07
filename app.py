@@ -1,3 +1,4 @@
+import traceback
 from flask import Flask, request, jsonify, render_template
 import anthropic
 import os
@@ -64,12 +65,29 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/health")
+def health():
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if key:
+        return jsonify({"ok": True, "key_set": True})
+    return jsonify({"ok": False, "key_set": False,
+                    "message": "ANTHROPIC_API_KEY が設定されていません"}), 200
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
+    # API キー確認
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return jsonify({
+            "success": False,
+            "error": "ANTHROPIC_API_KEY が設定されていません。.env ファイルを確認してください。",
+            "error_type": "no_key",
+        }), 400
+
     data = request.json or {}
-    situation   = SITUATION_MAP.get(data.get("situation", ""), data.get("situation", ""))
-    relationship = RELATIONSHIP_MAP.get(data.get("relationship", ""), data.get("relationship", ""))
-    details     = data.get("details", "").strip()
+    situation     = SITUATION_MAP.get(data.get("situation", ""), data.get("situation", ""))
+    relationship  = RELATIONSHIP_MAP.get(data.get("relationship", ""), data.get("relationship", ""))
+    details       = data.get("details", "").strip()
     detail_section = f"\n【補足情報】{details}" if details else ""
 
     prompt = PROMPT_TEMPLATE.format(
@@ -86,11 +104,27 @@ def generate():
             messages=[{"role": "user", "content": prompt}],
         )
         return jsonify({"success": True, "result": message.content[0].text})
+    except anthropic.AuthenticationError:
+        return jsonify({
+            "success": False,
+            "error": "APIキーが無効です。https://console.anthropic.com で確認してください。",
+            "error_type": "auth_error",
+        }), 401
     except Exception as e:
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))
     debug = os.environ.get("DEBUG", "false").lower() == "true"
+
+    key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
+        print("=" * 50)
+        print("⚠  ANTHROPIC_API_KEY が設定されていません")
+        print("   .env ファイルに以下を追加してください:")
+        print("   ANTHROPIC_API_KEY=sk-ant-xxxxx")
+        print("=" * 50)
+
     app.run(host="0.0.0.0", port=port, debug=debug)
