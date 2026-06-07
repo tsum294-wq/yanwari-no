@@ -22,12 +22,16 @@
     .screen.active{opacity:1;transform:translateY(0);pointer-events:auto}
     .screen.exit{opacity:0;transform:translateY(-16px);pointer-events:none}
 
+    /* ── Main screen layout (flex so tab-bar can't scroll) ── */
+    #s-main{overflow:hidden;display:flex;flex-direction:column}
+    .s-main-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
     /* ── Tab pages (within main area) ── */
-    .tab-page{display:none;padding-bottom:calc(var(--tab-h) + 16px)}
+    .tab-page{display:none;padding-bottom:24px}
     .tab-page.active{display:block}
 
-    /* ── Bottom tab bar ── */
-    .tab-bar{position:fixed;bottom:0;left:0;right:0;height:var(--tab-h);background:var(--surface);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+    /* ── Bottom tab bar (lives as flex-child of #s-main — cannot scroll) ── */
+    .tab-bar{position:relative;width:100%;height:var(--tab-h);background:var(--surface);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10;padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
     .tab-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:none;background:none;cursor:pointer;color:var(--muted);font-family:inherit;font-size:10px;font-weight:600;padding:8px 4px;transition:color .15s;-webkit-tap-highlight-color:transparent;position:relative}
     .tab-btn.active{color:var(--coral)}
     .tab-btn svg{transition:transform .15s}
@@ -177,9 +181,30 @@
     .footer-note a{color:var(--coral);text-decoration:none;font-weight:600}
     .toast{position:fixed;bottom:calc(var(--tab-h) + 12px);left:50%;transform:translateX(-50%) translateY(60px);background:#1A1A1A;color:#fff;padding:11px 22px;border-radius:100px;font-size:13px;font-weight:600;font-family:inherit;z-index:999;transition:transform .22s ease;pointer-events:none;white-space:nowrap}
     .toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* ── SPLASH ── */
+    #s-splash{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:500;transition:opacity .55s ease}
+    #s-splash.fade-out{opacity:0;pointer-events:none}
+    .splash-icon{width:96px;height:96px;background:var(--coral);border-radius:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 16px 48px rgba(242,102,90,.35);margin-bottom:22px;animation:splashBounce .7s cubic-bezier(.34,1.56,.64,1) both}
+    @keyframes splashBounce{from{opacity:0;transform:scale(.25) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    .splash-name{font-size:34px;font-weight:900;letter-spacing:-.6px;color:var(--text);animation:splashFadeUp .45s ease .28s both}
+    .splash-tagline{font-size:14px;color:var(--sub);margin-top:9px;animation:splashFadeUp .45s ease .44s both}
+    @keyframes splashFadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
+
+<!-- ═══ SPLASH SCREEN ═══ -->
+<div id="s-splash">
+  <div class="splash-icon">
+    <svg width="54" height="54" viewBox="0 0 40 40" fill="none">
+      <path d="M6 8C6 5.79 7.79 4 10 4H30C32.21 4 34 5.79 34 8V24C34 26.21 32.21 28 30 28H22L14 36V28H10C7.79 28 6 26.21 6 24V8Z" fill="white" fill-opacity=".95"/>
+      <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="splash-name">やんわりNO</div>
+  <div class="splash-tagline">断るのが苦手な人へ</div>
+</div>
 
 <!-- ═══ SCREEN: LOADING ═══ -->
 <div id="s-loading" class="screen">
@@ -268,7 +293,7 @@
 
 <!-- ═══ MAIN APP (with tabs) ═══ -->
 <div id="s-main" class="screen active">
-
+<div class="s-main-scroll">
   <!-- TAB: HOME -->
   <div id="tab-home" class="tab-page active">
     <div class="wrap">
@@ -385,9 +410,9 @@
     </div>
   </div>
 
-</div>
+</div><!-- /s-main-scroll -->
 
-<!-- Tab bar lives at body level so it's truly fixed to viewport -->
+<!-- Tab bar is a flex-child of #s-main — physically below the scroll area, cannot move -->
 <nav class="tab-bar" id="tab-bar">
   <button class="tab-btn active" id="tbtn-home" onclick="switchTab('home')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -407,6 +432,7 @@
     <span>診断</span>
   </button>
 </nav>
+</div><!-- /s-main -->
 
 <div class="toast" id="toast"></div>
 
@@ -439,9 +465,17 @@ function showScreen(id) {
   if (cur === next) return;
   cur?.classList.add('exit');
   cur?.classList.remove('active');
-  setTimeout(() => { cur?.classList.remove('exit'); next.classList.add('active'); next.scrollTop = 0; }, 80);
-  // tab bar only visible on main screen
-  document.getElementById('tab-bar').style.display = id === 's-main' ? 'grid' : 'none';
+  setTimeout(() => {
+    cur?.classList.remove('exit');
+    next.classList.add('active');
+    // s-main has an inner scroll container
+    if (id === 's-main') {
+      const sc = document.querySelector('.s-main-scroll');
+      if (sc) sc.scrollTop = 0;
+    } else {
+      next.scrollTop = 0;
+    }
+  }, 80);
 }
 function goBack(to) { showScreen(to); }
 
@@ -453,6 +487,8 @@ function switchTab(name) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('tbtn-' + name).classList.add('active');
+  const sc = document.querySelector('.s-main-scroll');
+  if (sc) sc.scrollTop = 0;
   if (name === 'history') renderHistory();
   if (name === 'library') renderLibrary();
 }
@@ -830,6 +866,11 @@ updateHistoryBadge();
 fetch('/health').then(r => r.json()).then(d => {
   if (!d.key_set) showErr('APIキーが設定されていません。.env ファイルに ANTHROPIC_API_KEY を追加してください。');
 }).catch(() => {});
+// Splash fade-out after 1.2s
+setTimeout(() => {
+  const sp = document.getElementById('s-splash');
+  if (sp) { sp.classList.add('fade-out'); setTimeout(() => sp.remove(), 560); }
+}, 1200);
 </script>
 </body>
 </html>
