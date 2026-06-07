@@ -19,6 +19,11 @@ SITUATION_MAP = {
     "nijikai":     "2次会・3次会への誘い",
     "event":       "イベント・勉強会への誘い",
     "date":        "個人的なお出かけの誘い",
+    "kokuhaku":    "告白・好意への返答",
+    "work":        "仕事・副業の依頼断り",
+    "kanyu":       "勧誘・セールスの断り",
+    "okane":       "お金の貸し借りの断り",
+    "line":        "LINEグループへの招待断り",
     "other":       "その他の誘いやお願い",
 }
 
@@ -72,6 +77,49 @@ def health():
         return jsonify({"ok": True, "key_set": True})
     return jsonify({"ok": False, "key_set": False,
                     "message": "ANTHROPIC_API_KEY が設定されていません"}), 200
+
+
+@app.route("/generate-followup", methods=["POST"])
+def generate_followup():
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        return jsonify({"success": False, "error": "ANTHROPIC_API_KEY が設定されていません", "error_type": "no_key"}), 400
+
+    data = request.json or {}
+    situation    = SITUATION_MAP.get(data.get("situation", ""), data.get("situation", ""))
+    relationship = RELATIONSHIP_MAP.get(data.get("relationship", ""), data.get("relationship", ""))
+    original     = data.get("original_message", "").strip()
+
+    prompt = f"""以下の状況で断り文を送った後、相手との関係を良好に保つための「フォローメッセージ」を2パターン生成してください。
+
+【断った状況】{situation}
+【相手との関係】{relationship}
+【送った断り文】{original if original else "（省略）"}
+
+フォローメッセージの要件:
+- 断ってから2〜3日後に送るイメージ
+- 断ったことを引きずらず、自然に関係を続けるための一言
+- LINEでそのまま送れる文体
+- AIっぽくない、人間らしい表現
+
+以下の形式で出力してください:
+
+【さりげないフォロー】
+[文章]
+
+【次の機会を作るフォロー】
+[文章]"""
+
+    try:
+        client = anthropic.Anthropic()
+        message = client.messages.create(
+            model="claude-opus-4-7",
+            max_tokens=800,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        return jsonify({"success": True, "result": message.content[0].text})
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route("/generate", methods=["POST"])
