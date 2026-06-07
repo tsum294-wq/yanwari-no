@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>やんわりNO – 断り文ジェネレーター</title>
-  <meta name="description" content="状況を選ぶだけで自然な断り文をAIが生成。飲み会・合コン・バイトシフトなどあらゆるシーンに対応。" />
+  <meta name="description" content="状況を選ぶだけで自然な断り文をAIが生成。" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet" />
@@ -24,334 +24,348 @@
       --shadow:     rgba(0,0,0,0.06);
     }
 
-    html { font-size: 16px; -webkit-text-size-adjust: 100%; }
-
-    body {
+    html, body {
+      height: 100%; overflow: hidden;
       font-family: 'Noto Sans JP', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
-      padding-bottom: 56px;
       -webkit-font-smoothing: antialiased;
     }
 
-    .wrap {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 0 20px;
+    /* ═══════════════════════════════
+       SCREEN SYSTEM
+    ═══════════════════════════════ */
+    .screen {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      opacity: 0;
+      transform: translateY(28px);
+      pointer-events: none;
+      transition: opacity .32s cubic-bezier(.4,0,.2,1),
+                  transform .32s cubic-bezier(.4,0,.2,1);
+    }
+    .screen.active {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+    .screen.exit-up {
+      opacity: 0; transform: translateY(-20px); pointer-events: none;
     }
 
-    /* ─── Hero ─── */
-    .hero {
-      padding: 52px 0 36px;
-      text-align: center;
-    }
+    /* ═══════════════════════════════
+       SCREEN 1 – INPUT
+    ═══════════════════════════════ */
+    .wrap { max-width: 480px; margin: 0 auto; padding: 0 20px 60px; }
 
-    /* SVG app icon */
+    .hero { padding: 52px 0 36px; text-align: center; }
     .app-icon {
       width: 76px; height: 76px;
-      background: var(--coral);
-      border-radius: 22px;
+      background: var(--coral); border-radius: 22px;
       display: inline-flex; align-items: center; justify-content: center;
       margin-bottom: 18px;
       box-shadow: 0 10px 28px rgba(242,102,90,.32);
     }
+    .hero h1 { font-size: 24px; font-weight: 900; letter-spacing: -.3px; margin-bottom: 8px; }
+    .hero p  { font-size: 14px; color: var(--sub); line-height: 1.7; }
 
-    .hero h1 {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.3px;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .hero p {
-      font-size: 14px;
-      color: var(--sub);
-      line-height: 1.7;
-      font-weight: 400;
-    }
-
-    /* ─── Section ─── */
     .section { margin-bottom: 28px; }
-
     .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-      padding-left: 2px;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 10px; padding-left: 2px;
     }
 
-    /* ─── Chips ─── */
     .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-
     .chip {
-      padding: 9px 16px;
-      border-radius: 100px;
-      border: none;
-      background: var(--surface);
-      color: var(--sub);
-      font-size: 13.5px;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      box-shadow: 0 2px 8px var(--shadow);
-      transition: all .16s ease;
-      line-height: 1;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
+      padding: 9px 16px; border-radius: 100px; border: none;
+      background: var(--surface); color: var(--sub);
+      font-size: 13.5px; font-weight: 500; font-family: inherit;
+      cursor: pointer; box-shadow: 0 2px 8px var(--shadow);
+      transition: all .16s ease; line-height: 1;
+      -webkit-tap-highlight-color: transparent; user-select: none;
     }
     .chip:hover { color: var(--coral); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
-    .chip.on {
-      background: var(--coral);
-      color: #fff;
-      font-weight: 700;
-      box-shadow: 0 4px 16px rgba(242,102,90,.38);
-    }
+    .chip.on { background: var(--coral); color: #fff; font-weight: 700; box-shadow: 0 4px 16px rgba(242,102,90,.38); }
 
-    /* ─── Textarea ─── */
-    .textarea-wrap {
-      background: var(--surface);
-      border-radius: 16px;
-      box-shadow: 0 2px 8px var(--shadow);
-    }
+    .textarea-wrap { background: var(--surface); border-radius: 16px; box-shadow: 0 2px 8px var(--shadow); }
     textarea {
-      width: 100%;
-      border: none; outline: none;
-      border-radius: 16px;
-      padding: 14px 16px;
-      font-size: 14px;
-      font-family: inherit;
-      resize: none;
-      color: var(--text);
-      background: transparent;
-      line-height: 1.65;
+      width: 100%; border: none; outline: none; border-radius: 16px;
+      padding: 14px 16px; font-size: 14px; font-family: inherit;
+      resize: none; color: var(--text); background: transparent; line-height: 1.65;
     }
     textarea::placeholder { color: var(--muted); }
 
-    /* ─── Error ─── */
     .err {
-      background: #FFF0EF;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: #C0392B;
-      font-weight: 500;
-      margin-bottom: 16px;
-      line-height: 1.5;
+      background: #FFF0EF; border-radius: 12px; padding: 12px 16px;
+      font-size: 13px; color: #C0392B; font-weight: 500; margin-bottom: 16px; line-height: 1.5;
     }
 
-    /* ─── Generate button ─── */
     .btn-gen {
-      width: 100%;
-      padding: 17px;
-      border-radius: 100px;
-      border: none;
-      background: var(--coral);
-      color: #fff;
-      font-size: 15.5px;
-      font-weight: 700;
-      font-family: inherit;
-      letter-spacing: .3px;
-      cursor: pointer;
-      box-shadow: 0 6px 22px rgba(242,102,90,.38);
+      width: 100%; padding: 17px; border-radius: 100px; border: none;
+      background: var(--coral); color: #fff;
+      font-size: 15.5px; font-weight: 700; font-family: inherit; letter-spacing: .3px;
+      cursor: pointer; box-shadow: 0 6px 22px rgba(242,102,90,.38);
       transition: all .18s ease;
       display: flex; align-items: center; justify-content: center; gap: 8px;
-      margin-bottom: 36px;
       -webkit-tap-highlight-color: transparent;
     }
-    .btn-gen:hover:not(:disabled) {
-      background: var(--coral-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 8px 26px rgba(242,102,90,.46);
-    }
+    .btn-gen:hover:not(:disabled) { background: var(--coral-dark); transform: translateY(-1px); box-shadow: 0 8px 26px rgba(242,102,90,.46); }
     .btn-gen:active:not(:disabled) { transform: scale(.975); }
     .btn-gen:disabled { opacity: .55; cursor: not-allowed; box-shadow: none; transform: none; }
 
-    /* ─── Spinner ─── */
-    .spin {
-      width: 17px; height: 17px;
-      border: 2px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer { text-align: center; font-size: 12px; color: var(--muted); padding: 20px 0 0; }
+    .footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
 
-    /* ─── Divider ─── */
-    .divider {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 20px;
+    /* ═══════════════════════════════
+       SCREEN 2 – LOADING
+    ═══════════════════════════════ */
+    .loading-wrap {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100vh; gap: 0; padding: 40px 20px;
     }
-    .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
-    .divider span { font-size: 11px; color: var(--muted); font-weight: 700; letter-spacing: .8px; text-transform: uppercase; white-space: nowrap; }
 
-    /* ─── Result cards ─── */
+    .loading-icon-anim {
+      width: 88px; height: 88px;
+      background: var(--coral); border-radius: 26px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 32px;
+      box-shadow: 0 12px 32px rgba(242,102,90,.3);
+      animation: iconPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1);    box-shadow: 0 12px 32px rgba(242,102,90,.3); }
+      50%       { transform: scale(1.07); box-shadow: 0 16px 40px rgba(242,102,90,.45); }
+    }
+
+    .loading-title {
+      font-size: 18px; font-weight: 700; color: var(--text);
+      margin-bottom: 8px; text-align: center;
+    }
+    .loading-sub {
+      font-size: 13px; color: var(--sub); margin-bottom: 36px; text-align: center;
+    }
+
+    .dots { display: flex; gap: 8px; }
+    .dot {
+      width: 9px; height: 9px; border-radius: 50%; background: var(--coral);
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .18s; }
+    .dot:nth-child(3) { animation-delay: .36s; }
+    @keyframes dotBounce {
+      0%, 60%, 100% { transform: translateY(0);    opacity: .5; }
+      30%           { transform: translateY(-12px); opacity: 1; }
+    }
+
+    /* 選択チップのプレビュー */
+    .loading-chips { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 40px; }
+    .loading-chip {
+      padding: 7px 14px; border-radius: 100px;
+      background: var(--surface); color: var(--sub);
+      font-size: 13px; font-weight: 600;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .loading-chip.coral { background: var(--coral); color: #fff; box-shadow: 0 4px 12px rgba(242,102,90,.32); }
+
+    /* ═══════════════════════════════
+       SCREEN 3 – RESULTS
+    ═══════════════════════════════ */
+
+    /* 固定ヘッダー */
+    .results-header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg);
+      padding: 16px 20px 12px;
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .btn-back {
+      display: flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border-radius: 100px; border: none;
+      background: var(--surface); color: var(--sub);
+      font-size: 13px; font-weight: 700; font-family: inherit;
+      cursor: pointer; box-shadow: 0 2px 8px var(--shadow);
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+      white-space: nowrap;
+    }
+    .btn-back:hover { color: var(--coral); }
+    .results-header-title {
+      font-size: 15px; font-weight: 800; flex: 1; text-align: center;
+      margin-right: 60px; /* balance with back button */
+    }
+
+    /* スクロールエリア */
+    .results-body { max-width: 480px; margin: 0 auto; padding: 20px 20px 32px; }
+
     .result-card {
-      background: var(--surface);
-      border-radius: 20px;
-      padding: 20px 20px 16px;
-      margin-bottom: 12px;
+      background: var(--surface); border-radius: 20px;
+      padding: 20px 20px 16px; margin-bottom: 12px;
       box-shadow: 0 4px 18px var(--shadow);
     }
-
     .result-type {
       display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--coral);
-      background: var(--coral-pale);
-      padding: 4px 10px 4px 8px;
-      border-radius: 100px;
-      margin-bottom: 12px;
-      letter-spacing: .2px;
+      font-size: 11px; font-weight: 700; color: var(--coral);
+      background: var(--coral-pale); padding: 4px 10px 4px 8px;
+      border-radius: 100px; margin-bottom: 12px; letter-spacing: .2px;
     }
-    .result-type svg { flex-shrink: 0; }
-
     .result-text {
-      font-size: 14.5px;
-      line-height: 1.85;
-      color: var(--text);
-      white-space: pre-wrap;
-      font-weight: 400;
+      font-size: 14.5px; line-height: 1.85; color: var(--text);
+      white-space: pre-wrap; font-weight: 400;
     }
-
-    .card-footer {
-      display: flex; justify-content: flex-end;
-      margin-top: 14px;
-    }
-
+    .card-footer { display: flex; justify-content: flex-end; margin-top: 14px; }
     .btn-copy {
       display: inline-flex; align-items: center; gap: 5px;
-      padding: 7px 13px;
-      border-radius: 100px;
-      border: 1.5px solid var(--border);
-      background: var(--bg);
+      padding: 7px 13px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--bg);
       font-size: 12px; font-weight: 600; font-family: inherit;
-      cursor: pointer; color: var(--muted);
-      transition: all .15s;
+      cursor: pointer; color: var(--muted); transition: all .15s;
       -webkit-tap-highlight-color: transparent;
     }
     .btn-copy:hover { border-color: var(--coral); color: var(--coral); }
     .btn-copy.done { background: var(--coral-pale); border-color: var(--coral); color: var(--coral); }
 
-    /* ─── Action row ─── */
-    .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
-
+    /* 固定フッター */
+    .results-footer {
+      position: sticky; bottom: 0;
+      background: var(--bg);
+      padding: 12px 20px 24px;
+      border-top: 1px solid var(--border);
+    }
+    .results-footer-inner {
+      max-width: 480px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
     .btn-share {
-      padding: 14px;
-      border-radius: 100px;
-      border: none;
-      background: #111;
-      color: #fff;
+      padding: 14px; border-radius: 100px; border: none;
+      background: #111; color: #fff;
       font-size: 13.5px; font-weight: 700; font-family: inherit;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 7px;
-      transition: background .15s;
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background .15s; -webkit-tap-highlight-color: transparent;
     }
     .btn-share:hover { background: #2a2a2a; }
-
     .btn-retry {
-      padding: 14px;
-      border-radius: 100px;
-      border: 1.5px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 13.5px; font-weight: 700; font-family: inherit;
-      cursor: pointer;
-      transition: all .15s;
-      box-shadow: 0 2px 8px var(--shadow);
-      -webkit-tap-highlight-color: transparent;
+      padding: 14px; border-radius: 100px;
+      border: 1.5px solid var(--border); background: var(--surface);
+      color: var(--text); font-size: 13.5px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: all .15s;
+      box-shadow: 0 2px 8px var(--shadow); -webkit-tap-highlight-color: transparent;
     }
     .btn-retry:hover { border-color: var(--coral); color: var(--coral); }
 
-    /* ─── Footer ─── */
-    .footer { text-align: center; font-size: 12px; color: var(--muted); padding: 24px 0 0; font-weight: 400; }
-    .footer a { color: var(--coral); text-decoration: none; font-weight: 600; }
-
-    /* ─── Utility ─── */
+    /* ═══════════════════════════════
+       UTILITY
+    ═══════════════════════════════ */
     .hidden { display: none !important; }
 
-    /* ─── Toast ─── */
     .toast {
       position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(56px);
       background: #1A1A1A; color: #fff;
       padding: 11px 22px; border-radius: 100px;
       font-size: 13px; font-weight: 600; font-family: inherit;
-      z-index: 99; transition: transform .22s ease;
+      z-index: 999; transition: transform .22s ease;
       pointer-events: none; white-space: nowrap;
     }
     .toast.show { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- Hero -->
-  <div class="hero">
-    <div class="app-icon">
-      <!-- Speech bubble with gentle wave = やんわりNO -->
-      <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+<!-- ──────────────── SCREEN 1: INPUT ──────────────── -->
+<div id="s-input" class="screen active">
+  <div class="wrap">
+    <div class="hero">
+      <div class="app-icon">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <path d="M6 8C6 5.79086 7.79086 4 10 4H30C32.2091 4 34 5.79086 34 8V24C34 26.2091 32.2091 28 30 28H22L14 36V28H10C7.79086 28 6 26.2091 6 24V8Z" fill="white" fill-opacity="0.95"/>
+          <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h1>やんわりNO</h1>
+      <p>断るのが苦手な人へ。<br>状況を選ぶだけで、自然な断り文が完成。</p>
+    </div>
+
+    <div class="section">
+      <div class="section-label">断りたいシチュエーション</div>
+      <div class="chips">
+        <button class="chip" data-g="situation" data-v="nomikai"     onclick="pick(this)">飲み会・食事会</button>
+        <button class="chip" data-g="situation" data-v="goukon"      onclick="pick(this)">合コン・デート</button>
+        <button class="chip" data-g="situation" data-v="shift"       onclick="pick(this)">バイトシフト交代</button>
+        <button class="chip" data-g="situation" data-v="nijikai"     onclick="pick(this)">2次会・3次会</button>
+        <button class="chip" data-g="situation" data-v="event"       onclick="pick(this)">イベント・勉強会</button>
+        <button class="chip" data-g="situation" data-v="date"        onclick="pick(this)">個人的なお出かけ</button>
+        <button class="chip" data-g="situation" data-v="other"       onclick="pick(this)">その他</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">相手との関係</div>
+      <div class="chips">
+        <button class="chip" data-g="relationship" data-v="friend"       onclick="pick(this)">友達・同期</button>
+        <button class="chip" data-g="relationship" data-v="senpai"       onclick="pick(this)">先輩・上司</button>
+        <button class="chip" data-g="relationship" data-v="kouhai"       onclick="pick(this)">後輩・部下</button>
+        <button class="chip" data-g="relationship" data-v="acquaintance" onclick="pick(this)">あまり親しくない人</button>
+        <button class="chip" data-g="relationship" data-v="other"        onclick="pick(this)">その他</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">補足情報 <span style="font-weight:400;letter-spacing:0;text-transform:none">(任意)</span></div>
+      <div class="textarea-wrap">
+        <textarea id="details" rows="2" placeholder="先週も断った、雰囲気を壊したくない、など"></textarea>
+      </div>
+    </div>
+
+    <div class="err hidden" id="err"></div>
+
+    <button class="btn-gen" id="btn-gen" onclick="generate()">
+      <span id="btn-label">断り文を生成する</span>
+    </button>
+
+    <div class="footer">
+      made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- ──────────────── SCREEN 2: LOADING ──────────────── -->
+<div id="s-loading" class="screen">
+  <div class="loading-wrap">
+    <div class="loading-icon-anim">
+      <svg width="44" height="44" viewBox="0 0 40 40" fill="none">
         <path d="M6 8C6 5.79086 7.79086 4 10 4H30C32.2091 4 34 5.79086 34 8V24C34 26.2091 32.2091 28 30 28H22L14 36V28H10C7.79086 28 6 26.2091 6 24V8Z" fill="white" fill-opacity="0.95"/>
-        <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/>
       </svg>
     </div>
-    <h1>やんわりNO</h1>
-    <p>断るのが苦手な人へ。<br>状況を選ぶだけで、自然な断り文が完成。</p>
-  </div>
-
-  <!-- Situation -->
-  <div class="section">
-    <div class="section-label">断りたいシチュエーション</div>
-    <div class="chips" id="sit-chips">
-      <button class="chip" data-g="situation" data-v="nomikai"     onclick="pick(this)">飲み会・食事会</button>
-      <button class="chip" data-g="situation" data-v="goukon"      onclick="pick(this)">合コン・デート</button>
-      <button class="chip" data-g="situation" data-v="shift"       onclick="pick(this)">バイトシフト交代</button>
-      <button class="chip" data-g="situation" data-v="nijikai"     onclick="pick(this)">2次会・3次会</button>
-      <button class="chip" data-g="situation" data-v="event"       onclick="pick(this)">イベント・勉強会</button>
-      <button class="chip" data-g="situation" data-v="date"        onclick="pick(this)">個人的なお出かけ</button>
-      <button class="chip" data-g="situation" data-v="other"       onclick="pick(this)">その他</button>
+    <div class="loading-title">断り文を考えています</div>
+    <div class="loading-sub">ちょうどいい言い方を探しています...</div>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
     </div>
+    <div class="loading-chips" id="loading-chips"></div>
+  </div>
+</div>
+
+
+<!-- ──────────────── SCREEN 3: RESULTS ──────────────── -->
+<div id="s-results" class="screen">
+
+  <div class="results-header">
+    <button class="btn-back" onclick="goBack()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      戻る
+    </button>
+    <div class="results-header-title">断り文</div>
   </div>
 
-  <!-- Relationship -->
-  <div class="section">
-    <div class="section-label">相手との関係</div>
-    <div class="chips" id="rel-chips">
-      <button class="chip" data-g="relationship" data-v="friend"       onclick="pick(this)">友達・同期</button>
-      <button class="chip" data-g="relationship" data-v="senpai"       onclick="pick(this)">先輩・上司</button>
-      <button class="chip" data-g="relationship" data-v="kouhai"       onclick="pick(this)">後輩・部下</button>
-      <button class="chip" data-g="relationship" data-v="acquaintance" onclick="pick(this)">あまり親しくない人</button>
-      <button class="chip" data-g="relationship" data-v="other"        onclick="pick(this)">その他</button>
-    </div>
-  </div>
-
-  <!-- Details -->
-  <div class="section">
-    <div class="section-label">補足情報 <span style="font-weight:400;letter-spacing:0;text-transform:none">(任意)</span></div>
-    <div class="textarea-wrap">
-      <textarea id="details" rows="2"
-        placeholder="先週も断った、雰囲気を壊したくない、など"></textarea>
-    </div>
-  </div>
-
-  <!-- Error -->
-  <div class="err hidden" id="err"></div>
-
-  <!-- Generate -->
-  <button class="btn-gen" id="btn-gen" onclick="generate()">
-    <div class="spin hidden" id="spin"></div>
-    <span id="btn-label">断り文を生成する</span>
-  </button>
-
-  <!-- Results -->
-  <div id="results" class="hidden">
-    <div class="divider"><span>生成完了</span></div>
-
+  <div class="results-body">
     <div class="result-card" id="card-1">
       <div class="result-type">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -393,26 +407,52 @@
         </button>
       </div>
     </div>
+  </div>
 
-    <div class="action-row">
+  <div class="results-footer">
+    <div class="results-footer-inner">
       <button class="btn-share" onclick="shareX()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
         Xでシェア
       </button>
-      <button class="btn-retry" onclick="generate()">再生成</button>
+      <button class="btn-retry" onclick="retryGenerate()">再生成</button>
     </div>
   </div>
 
-  <div class="footer">
-    made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a>
-  </div>
-
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
   const sel = { situation: null, relationship: null };
+  const SIT_LABELS = {
+    nomikai:'飲み会・食事会', goukon:'合コン・デート', shift:'バイトシフト交代',
+    nijikai:'2次会・3次会', event:'イベント・勉強会', date:'個人的なお出かけ', other:'その他'
+  };
+  const REL_LABELS = {
+    friend:'友達・同期', senpai:'先輩・上司', kouhai:'後輩・部下',
+    acquaintance:'あまり親しくない人', other:'その他'
+  };
 
+  /* ── Screen transitions ── */
+  function showScreen(id, dir = 'forward') {
+    const cur = document.querySelector('.screen.active');
+    const next = document.getElementById(id);
+    if (cur === next) return;
+
+    cur?.classList.add('exit-up');
+    cur?.classList.remove('active');
+
+    setTimeout(() => {
+      cur?.classList.remove('exit-up');
+      next.classList.add('active');
+      next.scrollTop = 0;
+    }, dir === 'forward' ? 80 : 0);
+  }
+
+  function goBack() { showScreen('s-input', 'back'); }
+
+  /* ── Chip selection ── */
   function pick(el) {
     const g = el.dataset.g;
     document.querySelectorAll(`.chip[data-g="${g}"]`).forEach(c => c.classList.remove('on'));
@@ -420,20 +460,21 @@
     sel[g] = el.dataset.v;
   }
 
+  /* ── Generate ── */
   async function generate() {
     if (!sel.situation)    { toast('シチュエーションを選んでください'); return; }
     if (!sel.relationship) { toast('相手との関係を選んでください'); return; }
 
     document.getElementById('err').classList.add('hidden');
-    const btn = document.getElementById('btn-gen');
-    const label = document.getElementById('btn-label');
-    const spin = document.getElementById('spin');
-    const res = document.getElementById('results');
 
-    btn.disabled = true;
-    label.textContent = '考え中...';
-    spin.classList.remove('hidden');
-    res.classList.add('hidden');
+    // ローディング画面のチップを更新
+    const chips = document.getElementById('loading-chips');
+    chips.innerHTML = `
+      <div class="loading-chip coral">${SIT_LABELS[sel.situation]}</div>
+      <div class="loading-chip coral">${REL_LABELS[sel.relationship]}</div>
+    `;
+
+    showScreen('s-loading');
 
     try {
       const r = await fetch('/generate', {
@@ -446,26 +487,52 @@
         }),
       });
       const data = await r.json();
+
       if (data.success) {
         render(data.result);
-        res.classList.remove('hidden');
-        res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => showScreen('s-results'), 400);
       } else {
+        showScreen('s-input', 'back');
         const err = document.getElementById('err');
         err.textContent = data.error || '生成に失敗しました。';
         err.classList.remove('hidden');
       }
     } catch {
+      showScreen('s-input', 'back');
       const err = document.getElementById('err');
-      err.textContent = '通信エラーが発生しました。サーバーが起動しているか確認してください。';
+      err.textContent = '通信エラーが発生しました。';
       err.classList.remove('hidden');
-    } finally {
-      btn.disabled = false;
-      label.textContent = '断り文を生成する';
-      spin.classList.add('hidden');
     }
   }
 
+  function retryGenerate() {
+    showScreen('s-loading');
+    document.getElementById('loading-chips').innerHTML = `
+      <div class="loading-chip coral">${SIT_LABELS[sel.situation]}</div>
+      <div class="loading-chip coral">${REL_LABELS[sel.relationship]}</div>
+    `;
+    fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        situation: sel.situation, relationship: sel.relationship,
+        details: document.getElementById('details').value,
+      }),
+    }).then(r => r.json()).then(data => {
+      if (data.success) {
+        render(data.result);
+        setTimeout(() => showScreen('s-results'), 400);
+      } else {
+        showScreen('s-results');
+        toast(data.error || '再生成に失敗しました');
+      }
+    }).catch(() => {
+      showScreen('s-results');
+      toast('通信エラーが発生しました');
+    });
+  }
+
+  /* ── Parse & render results ── */
   function render(text) {
     const defs = [
       { id: 1, key: 'さらりと断る系' },
@@ -474,14 +541,15 @@
     ];
     defs.forEach((d, i) => {
       const start = text.indexOf(`【${d.key}】`);
-      if (start === -1) { document.getElementById(`card-${d.id}`).style.display = 'none'; return; }
-      const afterHeader = start + `【${d.key}】`.length;
+      const card = document.getElementById(`card-${d.id}`);
+      if (start === -1) { card.style.display = 'none'; return; }
+      const after = start + `【${d.key}】`.length;
       const nextKey = defs[i + 1] ? `【${defs[i+1].key}】` : null;
       const end = nextKey ? text.indexOf(nextKey) : text.length;
-      let chunk = text.substring(afterHeader, end !== -1 ? end : text.length);
+      let chunk = text.substring(after, end !== -1 ? end : text.length);
       chunk = chunk.replace(/^[\s\n]*（[^\n）]*）[\s\n]*/m, '').trim();
       chunk = chunk.replace(/^\[|\]$/g, '').trim();
-      document.getElementById(`card-${d.id}`).style.display = chunk ? 'block' : 'none';
+      card.style.display = chunk ? 'block' : 'none';
       document.getElementById(`text-${d.id}`).textContent = chunk;
       const cp = document.getElementById(`cp-${d.id}`);
       cp.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> コピー';
@@ -489,6 +557,7 @@
     });
   }
 
+  /* ── Copy ── */
   function copyText(id) {
     const txt = document.getElementById(`text-${id}`).textContent;
     const btn = document.getElementById(`cp-${id}`);
@@ -502,14 +571,14 @@
     });
   }
 
+  /* ── Share ── */
   function shareX() {
-    const labels = { nomikai:'飲み会', goukon:'合コン', shift:'バイトシフト',
-                     nijikai:'2次会', event:'イベント', date:'お出かけ', other:'誘い' };
-    const sit = labels[sel.situation] || '誘い';
+    const sit = SIT_LABELS[sel.situation] || '誘い';
     const t = `${sit}の断り文、AIが一瞬で作ってくれるやつ作った\n\nこういうの欲しかったってなった\n\n→ やんわりNO\nhttps://yanwari-no.onrender.com\n\n#やんわりNO`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}`, '_blank');
   }
 
+  /* ── Toast ── */
   function toast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -517,6 +586,7 @@
     setTimeout(() => el.classList.remove('show'), 2500);
   }
 
+  /* ── API key check ── */
   fetch('/health').then(r => r.json()).then(d => {
     if (!d.key_set) {
       const err = document.getElementById('err');
