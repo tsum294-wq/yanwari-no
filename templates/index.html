@@ -122,6 +122,30 @@
     .followup-card{background:var(--surface);border-radius:20px;padding:18px 18px 14px;margin-bottom:12px;box-shadow:0 4px 18px var(--shadow)}
     .followup-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#7C6E3C;background:#FFFBEB;padding:4px 10px 4px 8px;border-radius:100px;margin-bottom:10px}
 
+    /* ── HOME LANDING ── */
+    #home-landing{animation:fadeIn .25s ease both}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .home-hero{background:linear-gradient(155deg,var(--coral) 0%,#D95246 100%);padding:28px 24px 34px;position:relative;overflow:hidden}
+    .home-hero::after{content:'';position:absolute;right:-24px;top:-24px;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.08);pointer-events:none}
+    .home-hero::before{content:'';position:absolute;right:44px;bottom:-32px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+    .home-hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:100px;margin-bottom:14px}
+    .home-hero-h{font-size:27px;font-weight:900;color:#fff;line-height:1.25;letter-spacing:-.5px;margin-bottom:9px;position:relative}
+    .home-hero-sub{font-size:13px;color:rgba(255,255,255,.85);line-height:1.6;margin-bottom:22px;position:relative}
+    .home-hero-btn{background:#fff;color:var(--coral);font-size:15px;font-weight:800;padding:14px 28px;border-radius:100px;border:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);cursor:pointer;font-family:inherit;position:relative;-webkit-tap-highlight-color:transparent;transition:transform .15s,box-shadow .15s}
+    .home-hero-btn:active{transform:scale(.97);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+    .home-body{padding:18px 20px 24px;display:flex;flex-direction:column;gap:14px}
+    .home-features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .home-feat{background:var(--surface);border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 2px 10px var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s;border:none;font-family:inherit}
+    .home-feat:active{transform:scale(.95)}
+    .home-feat-icon{margin-bottom:8px;display:flex;justify-content:center}
+    .home-feat-label{font-size:12px;font-weight:700;color:var(--text)}
+    .home-feat-sub{font-size:10px;color:var(--muted);margin-top:2px}
+    .home-recent{background:var(--surface);border-radius:16px;padding:16px;box-shadow:0 2px 10px var(--shadow)}
+    .home-recent-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+    .home-recent-item{font-size:13px;color:var(--sub);padding:9px 0;border-bottom:1px solid var(--border);line-height:1.55;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+    .home-recent-item:last-child{border-bottom:none;padding-bottom:0}
+    .home-recent-empty{font-size:13px;color:var(--muted);text-align:center;padding:6px 0}
+
     /* ── STEP WIZARD (home tab) ── */
     .tab-page{display:none}
     .tab-page.active{display:block}
@@ -347,12 +371,49 @@
   </div>
 </header>
 <div class="s-main-scroll">
-  <!-- TAB: HOME — step wizard -->
+  <!-- TAB: HOME -->
   <div id="tab-home" class="tab-page active">
+
+    <!-- HOME LANDING -->
+    <div id="home-landing">
+      <div class="home-hero">
+        <div class="home-hero-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI が断り文を生成</div>
+        <div class="home-hero-h">断るのが<br>怖くなくなる</div>
+        <div class="home-hero-sub">状況を選ぶだけで、相手を傷つけない<br>ちょうどいい断り文を作ります。</div>
+        <button class="home-hero-btn" onclick="startWizard()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          断り文を作る
+        </button>
+      </div>
+      <div class="home-body">
+        <div class="home-features">
+          <button class="home-feat" onclick="switchTab('history')">
+            <div class="home-feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+            <div class="home-feat-label">保存した文</div>
+            <div class="home-feat-sub">お気に入り</div>
+          </button>
+          <button class="home-feat" onclick="switchTab('library')">
+            <div class="home-feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+            <div class="home-feat-label">テンプレ</div>
+            <div class="home-feat-sub">コピペ例文</div>
+          </button>
+          <button class="home-feat" onclick="switchTab('quiz')">
+            <div class="home-feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div class="home-feat-label">診断</div>
+            <div class="home-feat-sub">タイプ診断</div>
+          </button>
+        </div>
+        <div class="home-recent" id="home-recent"></div>
+      </div>
+    </div>
+
+    <!-- WIZARD (hidden until started) -->
+    <div id="home-wizard" class="hidden">
 
     <!-- STEP 1: シチュエーション -->
     <div class="step-panel active" id="step-1">
       <div class="step-header">
+        <button class="step-back" onclick="exitWizard()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>ホーム</button>
         <div class="step-lbl">STEP 1 / 4</div>
         <div class="step-q">断りたいシチュエーションは？</div>
       </div>
@@ -420,7 +481,9 @@
       </div>
     </div>
 
-  </div>
+  </div><!-- /home-wizard -->
+
+  </div><!-- /tab-home -->
 
   <!-- TAB: HISTORY -->
   <div id="tab-history" class="tab-page">
@@ -564,9 +627,51 @@ function switchTab(name) {
   const sc = document.querySelector('.s-main-scroll');
   if (sc) sc.scrollTop = 0;
   const prog = document.getElementById('step-prog-wrap');
-  if (prog) prog.style.display = (name === 'home') ? '' : 'none';
+  if (prog) prog.style.display = 'none';
+  if (name === 'home') {
+    document.getElementById('home-landing').classList.remove('hidden');
+    document.getElementById('home-wizard').classList.add('hidden');
+    renderHomeLanding();
+  }
   if (name === 'history') renderHistory();
   if (name === 'library') renderLibrary();
+}
+
+function startWizard() {
+  document.getElementById('home-landing').classList.add('hidden');
+  document.getElementById('home-wizard').classList.remove('hidden');
+  const prog = document.getElementById('step-prog-wrap');
+  if (prog) prog.style.display = '';
+  if (currentStep !== 1) {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active', 'exiting'));
+    document.getElementById('step-1').classList.add('active');
+    currentStep = 1;
+    updateStepProgress();
+  }
+  triggerStepAnim(document.getElementById('step-1'));
+  const sc = document.querySelector('.s-main-scroll');
+  if (sc) sc.scrollTop = 0;
+}
+
+function exitWizard() {
+  document.getElementById('home-wizard').classList.add('hidden');
+  document.getElementById('home-landing').classList.remove('hidden');
+  const prog = document.getElementById('step-prog-wrap');
+  if (prog) prog.style.display = 'none';
+  renderHomeLanding();
+}
+
+function renderHomeLanding() {
+  const el = document.getElementById('home-recent');
+  if (!el) return;
+  const favs = getFavorites();
+  if (!favs.length) {
+    el.innerHTML = `<div class="home-recent-title">最近の断り文</div><div class="home-recent-empty">まだ保存した断り文はありません</div>`;
+  } else {
+    const items = favs.slice(0, 2).map(f =>
+      `<div class="home-recent-item">${f.text}</div>`).join('');
+    el.innerHTML = `<div class="home-recent-title">最近の断り文</div>${items}`;
+  }
 }
 
 /* ─────────────────────────────────────
@@ -993,7 +1098,8 @@ function toast(msg) {
 initCounter();
 updateHistoryBadge();
 updateStepProgress();
-triggerStepAnim(document.getElementById('step-1'));
+renderHomeLanding();
+document.getElementById('step-prog-wrap').style.display = 'none';
 fetch('/health').then(r => r.json()).then(d => {
   if (!d.key_set) showErr('APIキーが設定されていません。.env ファイルに ANTHROPIC_API_KEY を追加してください。');
 }).catch(() => {});
