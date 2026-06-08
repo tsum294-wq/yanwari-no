@@ -250,14 +250,34 @@
     /* ── Float-in animation for quiz ── */
     .q-opt{animation:floatIn .46s cubic-bezier(.16,1,.3,1) both}
 
-    /* ── QUIZ RESULT (MBTI style) ── */
-    .qr-illus{width:110px;height:110px;margin:0 auto 16px;border-radius:30px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-    .qr-code{font-size:38px;font-weight:900;letter-spacing:4px;text-align:center;margin-bottom:6px}
-    .qr-char-name{font-size:22px;font-weight:900;text-align:center;letter-spacing:-.3px;margin-bottom:8px}
-    .qr-tag{display:inline-block;padding:4px 14px;border-radius:100px;font-size:11px;font-weight:700;margin-bottom:18px}
-    .qr-score-row{display:flex;gap:8px;justify-content:center;margin-bottom:20px}
-    .qr-score-pill{padding:4px 10px;border-radius:100px;font-size:11px;font-weight:700;opacity:.55}
-    .qr-score-pill.win{opacity:1;transform:scale(1.08)}
+    /* ── QUIZ RESULT (16p style) ── */
+    .quiz-result-wrap{max-width:480px;margin:0 auto;padding:20px 20px 100px}
+    .qr-hero{background:var(--surface);border-radius:22px;padding:18px 18px 16px;box-shadow:0 4px 18px var(--shadow);margin-bottom:14px;display:flex;align-items:center;gap:16px}
+    .qr-char-art{width:108px;height:108px;flex-shrink:0;border-radius:18px;overflow:hidden}
+    .qr-char-art svg{width:100%;height:100%}
+    .qr-hero-info{flex:1;min-width:0}
+    .qr-type-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.8px;margin-bottom:3px}
+    .qr-code{font-size:28px;font-weight:900;letter-spacing:3px;margin-bottom:5px}
+    .qr-char-name{font-size:15px;font-weight:900;letter-spacing:-.2px;margin-bottom:7px;line-height:1.3}
+    .qr-tag{display:inline-block;padding:3px 11px;border-radius:100px;font-size:10px;font-weight:700}
+    .qr-dims-card{background:var(--surface);border-radius:18px;padding:18px 16px;box-shadow:0 4px 16px var(--shadow);margin-bottom:14px}
+    .qr-dims-ttl{font-size:12px;font-weight:800;margin-bottom:14px;color:var(--text)}
+    .qr-dim{margin-bottom:15px}
+    .qr-dim:last-child{margin-bottom:0}
+    .qr-dim-head{text-align:center;font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:5px}
+    .qr-dim-row{display:flex;align-items:center;gap:8px}
+    .qr-dim-side{width:54px;flex-shrink:0}
+    .qr-dim-side.l{text-align:right}
+    .qr-dim-side.r{text-align:left}
+    .qr-dim-pct{font-size:12px;font-weight:800;display:block;color:var(--muted)}
+    .qr-dim-pct.hi{font-size:14px}
+    .qr-dim-lbl2{font-size:10px;font-weight:600;color:var(--muted);display:block;margin-top:1px}
+    .qr-dim-lbl2.hi{color:var(--text)}
+    .qr-dim-bar{flex:1;height:8px;background:var(--border);border-radius:100px;overflow:hidden}
+    .qr-dim-fill{height:100%;border-radius:100px;transition:width .8s cubic-bezier(.4,0,.2,1) .3s}
+    .qr-share-x{width:100%;padding:13px;border-radius:100px;border:none;background:#000;color:#fff;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;-webkit-tap-highlight-color:transparent;transition:opacity .15s}
+    .qr-share-x:hover{opacity:.85}
+    .qr-share-x:active{opacity:.7}
 
     /* ── Utility ── */
     .hidden{display:none!important}
@@ -526,7 +546,7 @@
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <h2>断り上手度診断</h2>
-        <p>5つの質問に答えて、あなたの「断りタイプ」を診断します。</p>
+        <p>12の質問に4択で答えて、あなたの「断りタイプ」を診断。全16タイプ。</p>
       </div>
       <button class="btn-start" onclick="startQuiz()">診断スタート</button>
     </div>
@@ -1046,94 +1066,111 @@ function copyLib(i) {
    Dimensions: I/E  N/S  F/T  J/P
 ───────────────────────────────────── */
 // Each question: opts[0] → letters[0], opts[1] → letters[1]
+// Dimensions: W/K(感情/論理)  F/R(理想/現実)  T/A(気遣い/自分軸)  P/S(慎重/即決)
+// 12 questions × 4 options. opts[0,1] → lets[0];  opts[2,3] → lets[1]
 const Q_PAIRS = [
-  { letters:['I','E'], q:'断った後、相手のことが気になる？',
-    opts:['かなり気になる、申し訳ない気持ちになる','伝えることは伝えた。あとは相手次第'] },
-  { letters:['E','I'], q:'断ることへの正直な気持ちは？',
-    opts:['断ることは普通のこと、罪悪感はあまりない','毎回、なんか悪いなって思う'] },
-  { letters:['N','S'], q:'断るときに一番頭にあることは？',
-    opts:['この先の関係が続くかどうか','今この瞬間の相手の反応'] },
-  { letters:['S','N'], q:'断りたい理由は？',
-    opts:['単純に今行きたくないから','この人との付き合いが将来的に難しいと感じるから'] },
-  { letters:['F','T'], q:'断り文を考えるとき、意識することは？',
-    opts:['相手が傷つかないか、気持ちが伝わるか','正確に伝わるか、誤解されないか'] },
-  { letters:['T','F'], q:'断った後のフォローは？',
-    opts:['伝えることは伝えた、フォローは最低限','相手の気持ちが心配で連絡することが多い'] },
-  { letters:['J','P'], q:'断るときの言い方は？',
-    opts:['「行けないです」とはっきり伝えることが多い','「ちょっと…」「どうかな…」と濁すことが多い'] },
-  { letters:['P','J'], q:'断りの理由をどう伝える？',
-    opts:['「なんとなく」「ちょっと都合が」くらいでぼかす','明確な理由をちゃんと伝える'] },
+  // W/K axis (3 questions)
+  { lets:['W','K'], q:'断った後、相手のことが気になる？',
+    opts:['気になりすぎて何度もトーク画面を見てしまう','少し気になるけど、まあ大丈夫だと思う','気になるけど、切り替えは早い方だ','まったく気にしない。伝えたのだから相手次第'] },
+  { lets:['K','W'], q:'断ることへの正直な気持ちは？',
+    opts:['断ることは普通のこと。罪悪感はゼロに近い','あまり罪悪感はないが少しは気になる','毎回なんか申し訳ないなと思う','断るたびに「嫌われたかも」と不安になる'] },
+  { lets:['W','K'], q:'断り文を送った後の気分は？',
+    opts:['モヤモヤが続いて、ちゃんと伝わったか不安になる','少し心配だが、概ね大丈夫と思える','送ったら気持ちは切り替えられる方だ','送ったら忘れる。気にしない'] },
+  // F/R axis (3 questions)
+  { lets:['F','R'], q:'断るときに一番頭にあることは？',
+    opts:['この一言でこれからの関係がどう変わるか','先のことも気になるが今の状況も大事','今の場面での相手の気持ちを最優先に考える','今この瞬間、どう伝えるかだけ考える'] },
+  { lets:['R','F'], q:'断りたい主な理由は？',
+    opts:['単純に今行きたくないから','今は無理だけど次は行けるかも','この人と付き合い続けるのが難しいかもと感じる','この先の関係を考えると、ここで断るのが正解だと思う'] },
+  { lets:['F','R'], q:'断り文を作るとき、どんな視点で考える？',
+    opts:['「この断り方で将来の関係はどうなるか」を最優先に','先のことも念頭に置きつつ今の場面も大事にする','今この状況で何を伝えるべきかを重視する','先のことより今の相手への伝え方だけを考える'] },
+  // T/A axis (3 questions)
+  { lets:['T','A'], q:'断り文を考えるとき、意識することは？',
+    opts:['相手がどう感じるかを一番に考える','相手の気持ちを大切にしつつ自分の意思も伝える','自分の意思を正確に伝えることが大切だと思う','相手より自分が正直に伝えることが最優先'] },
+  { lets:['A','T'], q:'断った後のフォローは？',
+    opts:['フォローは基本しない。伝えることは伝えた','気になることはあるが、フォローは最低限','相手が心配で、少し後で確認メッセージを送ることが多い','気になってフォローのLINEを何度も送ってしまうことがある'] },
+  { lets:['T','A'], q:'断るとき、一番大切にしていることは？',
+    opts:['相手に嫌な思いをさせないこと','相手の気持ちを大切にしながら自分の意思も伝える','自分の気持ちを正直に伝えること','相手への配慮より自分の本音を伝えることが大事'] },
+  // P/S axis (3 questions)
+  { lets:['P','S'], q:'断るときの言い方は？',
+    opts:['「どうかな…」「ちょっと考えさせて」と返事を保留することが多い','「難しいかも」くらいには言うが、はっきりは言いにくい','「行けないと思います」くらいはっきり伝える方だ','「無理です」とすぐはっきり言える。迷いない'] },
+  { lets:['S','P'], q:'断りの理由をどう伝える？',
+    opts:['明確な理由をそのまま伝える。ぼかすより正直な方がいい','ある程度は理由を伝えるが、全部は説明しない','なんとなく「都合が…」くらいでぼかす方だ','理由はほとんど言わない。「ちょっと…」でOKだと思う'] },
+  { lets:['P','S'], q:'断りの返事を送るタイミングは？',
+    opts:['すぐには返さない。何日か置いてから返すことが多い','少し考えてから、文章を練り直して送る','考えたらすぐ送る。長く悩まない','すぐ即答する。考えるより送っちゃう方が楽'] },
 ];
 
-// 4 SVG shapes by function group
-const _SHP = {
-  NF:`<path d="M40 55C40 55 20 44 20 32C20 25 26 21 33 22.6C36.3 23.4 38.5 25.5 40 28C41.5 25.5 43.7 23.4 47 22.6C54 21 60 25 60 32C60 44 40 55 40 55Z"/>`,
-  NT:`<path d="M40 13L44.5 27H59L47.5 35.5L52 50L40 41.5L28 50L32.5 35.5L21 27H35.5L40 13Z"/>`,
-  SF:`<circle cx="40" cy="40" r="13"/><circle cx="40" cy="22" r="9"/><circle cx="40" cy="58" r="9"/><circle cx="23" cy="40" r="9"/><circle cx="57" cy="40" r="9"/>`,
-  ST:`<path d="M46 10L27 44H42L33 70L55 33H40L46 10Z"/>`,
-};
-function _qSvg(shape, color, bg) {
-  return `<svg width="80" height="80" viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="40" fill="${bg}"/><g fill="${color}">${_SHP[shape]}</g></svg>`;
+const _DIM_NAMES = {W:'感情',K:'論理',F:'理想',R:'現実',T:'気遣い',A:'自分軸',P:'慎重',S:'即決'};
+const _DIM_PAIRS = [['W','K'],['F','R'],['T','A'],['P','S']];
+const _DIM_HEADS = ['感情 / 論理','理想 / 現実','気遣い / 自分軸','慎重 / 即決'];
+
+// SVG character illustrations — Japanese flat illustration style
+// 4 groups: WF(dreamy warm), WR(grounded warm), KF(analytical cool), KR(decisive cool)
+function _charSvg(grp, c, bg) {
+  const s = '#F8D0B0';
+  if (grp === 'WF') return `<svg viewBox="0 0 120 128" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="62" r="56" fill="${bg}"/><ellipse cx="60" cy="50" rx="30" ry="26" fill="${c}"/><path d="M30 56 C24 72 26 88 30 94" stroke="${c}" stroke-width="12" stroke-linecap="round" fill="none"/><path d="M90 56 C96 72 94 88 90 94" stroke="${c}" stroke-width="12" stroke-linecap="round" fill="none"/><rect x="54" y="94" width="12" height="10" rx="5" fill="${s}"/><path d="M30 128 C34 114 46 110 60 110 C74 110 86 114 90 128Z" fill="${c}" opacity="0.85"/><ellipse cx="60" cy="68" rx="26" ry="27" fill="${s}"/><path d="M34 60 Q36 44 60 42 Q84 44 86 60 Q80 52 60 52 Q40 52 34 60Z" fill="${c}"/><path d="M34 60 Q28 54 30 64" fill="${c}"/><path d="M86 60 Q92 54 90 64" fill="${c}"/><ellipse cx="50" cy="67" rx="6.5" ry="7" fill="#222"/><ellipse cx="70" cy="67" rx="6.5" ry="7" fill="#222"/><circle cx="52.5" cy="64" r="2.5" fill="white"/><circle cx="72.5" cy="64" r="2.5" fill="white"/><ellipse cx="41" cy="75" rx="8" ry="4.5" fill="${c}" opacity="0.3"/><ellipse cx="79" cy="75" rx="8" ry="4.5" fill="${c}" opacity="0.3"/><path d="M50 80 Q60 88 70 80" stroke="#333" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M94 28 L95.5 23 L97 28 L92 25 L100 25Z" fill="${c}" opacity="0.65"/><circle cx="20" cy="40" r="3" fill="${c}" opacity="0.45"/><circle cx="16" cy="32" r="2" fill="${c}" opacity="0.35"/></svg>`;
+  if (grp === 'WR') return `<svg viewBox="0 0 120 128" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="62" r="56" fill="${bg}"/><ellipse cx="60" cy="48" rx="29" ry="25" fill="${c}"/><path d="M86 56 C92 68 90 82 86 92" stroke="${c}" stroke-width="11" stroke-linecap="round" fill="none"/><path d="M34 56 C28 68 30 82 34 92" stroke="${c}" stroke-width="11" stroke-linecap="round" fill="none"/><rect x="54" y="94" width="12" height="10" rx="5" fill="${s}"/><path d="M28 128 C32 112 46 108 60 108 C74 108 88 112 92 128Z" fill="${c}" opacity="0.85"/><ellipse cx="60" cy="68" rx="26" ry="27" fill="${s}"/><path d="M34 58 Q36 42 60 40 Q84 42 86 58 Q80 50 60 50 Q40 50 34 58Z" fill="${c}"/><path d="M34 58 Q28 52 30 62" fill="${c}"/><path d="M86 58 Q92 52 90 62" fill="${c}"/><ellipse cx="50" cy="67" rx="6" ry="6.5" fill="#222"/><ellipse cx="70" cy="67" rx="6" ry="6.5" fill="#222"/><circle cx="52.5" cy="64" r="2.5" fill="white"/><circle cx="72.5" cy="64" r="2.5" fill="white"/><path d="M44 58 Q50 55 56 58" stroke="#555" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M64 58 Q70 55 76 58" stroke="#555" stroke-width="1.8" stroke-linecap="round" fill="none"/><ellipse cx="41" cy="75" rx="9" ry="5" fill="${c}" opacity="0.32"/><ellipse cx="79" cy="75" rx="9" ry="5" fill="${c}" opacity="0.32"/><path d="M49 79 Q60 89 71 79" stroke="#333" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M97 34 C97 32 99 30 101 32 C103 30 105 32 105 34 C105 37 101 40 101 40 C101 40 97 37 97 34Z" fill="${c}" opacity="0.7"/></svg>`;
+  if (grp === 'KF') return `<svg viewBox="0 0 120 128" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="62" r="56" fill="${bg}"/><path d="M32 55 Q34 24 60 20 Q86 24 88 55 Q86 34 60 32 Q34 34 32 55Z" fill="${c}"/><path d="M32 55 C26 70 28 86 32 92" stroke="${c}" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M88 55 C94 70 92 86 88 92" stroke="${c}" stroke-width="10" stroke-linecap="round" fill="none"/><rect x="54" y="94" width="12" height="10" rx="5" fill="${s}"/><path d="M28 128 C32 112 46 108 60 108 C74 108 88 112 92 128Z" fill="${c}"/><path d="M54 108 L60 116 L66 108" fill="white" opacity="0.7"/><ellipse cx="60" cy="68" rx="26" ry="27" fill="${s}"/><path d="M34 52 Q36 38 60 36 Q84 38 86 52 Q80 44 60 44 Q40 44 34 52Z" fill="${c}"/><path d="M34 52 Q28 48 30 60" fill="${c}"/><path d="M86 52 Q92 48 90 60" fill="${c}"/><rect x="42" y="62" width="14" height="11" rx="5" fill="none" stroke="${c}" stroke-width="2.2"/><rect x="64" y="62" width="14" height="11" rx="5" fill="none" stroke="${c}" stroke-width="2.2"/><line x1="56" y1="67" x2="64" y2="67" stroke="${c}" stroke-width="2.2"/><line x1="38" y1="67" x2="42" y2="67" stroke="${c}" stroke-width="2"/><line x1="78" y1="67" x2="82" y2="67" stroke="${c}" stroke-width="2"/><ellipse cx="49" cy="67" rx="4" ry="4" fill="#222"/><ellipse cx="71" cy="67" rx="4" ry="4" fill="#222"/><circle cx="50.5" cy="65.5" r="1.5" fill="white"/><circle cx="72.5" cy="65.5" r="1.5" fill="white"/><path d="M53 79 Q60 84 67 79" stroke="#333" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M95 26 L97 20 L99 26 L94 22.5 L102 22.5Z" fill="${c}" opacity="0.65"/></svg>`;
+  return `<svg viewBox="0 0 120 128" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="62" r="56" fill="${bg}"/><path d="M34 56 Q34 24 60 20 Q86 24 86 56 Q84 36 60 34 Q36 36 34 56Z" fill="${c}"/><path d="M34 56 C30 64 30 72 34 78" stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M86 56 C90 64 90 72 86 78" stroke="${c}" stroke-width="8" stroke-linecap="round" fill="none"/><rect x="54" y="94" width="12" height="10" rx="5" fill="${s}"/><path d="M26 128 C30 110 46 106 60 106 C74 106 90 110 94 128Z" fill="${c}"/><path d="M54 106 L60 114 L66 106" fill="white" opacity="0.8"/><ellipse cx="60" cy="68" rx="26" ry="27" fill="${s}"/><path d="M34 50 Q36 36 60 34 Q84 36 86 50 Q80 44 60 44 Q40 44 34 50Z" fill="${c}"/><path d="M34 50 Q30 46 32 56 Q32 50 34 50Z" fill="${c}"/><path d="M86 50 Q90 46 88 56 Q88 50 86 50Z" fill="${c}"/><ellipse cx="50" cy="66" rx="6" ry="6" fill="#222"/><ellipse cx="70" cy="66" rx="6" ry="6" fill="#222"/><circle cx="52" cy="64" r="2" fill="white"/><circle cx="72" cy="64" r="2" fill="white"/><path d="M44 56 Q50 53 56 55" stroke="#444" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M64 55 Q70 53 76 56" stroke="#444" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M52 78 Q60 83 68 78" stroke="#333" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M96 24 L90 36 L96 34 L92 46 L99 32 L93 34 L96 24Z" fill="${c}" opacity="0.65"/></svg>`;
 }
 
 const QUIZ_TYPES = {
-  INFP:{ name:'もやもや守護天使型', tag:'反省会の常連さん',           color:'#EC4899', bg:'#FFF0F8', shape:'NF',
-    desc:'断ることに罪悪感を感じ、将来の関係を気にしながらも感情で動くタイプ。頭の中で何度もシミュレーションして、断った後に一人で反省会を開く。その繊細さこそが最大の魅力です。',
-    advice:'完璧な断り文を探し続けなくていいんです。「まあこれでいいか」のラインを下げると、グッと楽になります。' },
-  INFJ:{ name:'完璧気遣いマスター型', tag:'先の先まで考えすぎ',       color:'#7C3AED', bg:'#F5F3FF', shape:'NF',
-    desc:'断りながらも相手の将来まで考えて行動する稀少なタイプ。感情豊かで気遣いが深く、断り文に込めるエネルギーが他の人の10倍。疲れやすいのに誰かのためになりたがります。',
-    advice:'完璧な断り方なんてありません。7割くらいの出来でも十分伝わります。力を抜いてみてください。' },
-  INTP:{ name:'脳内シミュレーター型', tag:'返事が遅いのには理由がある', color:'#4F46E5', bg:'#EEF2FF', shape:'NT',
-    desc:'断ることに罪悪感を感じつつも、関係性を論理的に計算しながら動くタイプ。断る前に頭の中で10通りの返し方を試してから送信。返事が遅いのはそういう理由です。',
-    advice:'考えすぎると相手が不安になります。「ちょっと考えます」の一言を先に送ると、互いに楽になりますよ。' },
-  INTJ:{ name:'情に流されない謀略家型', tag:'冷静に見えて実はドキドキ',  color:'#1D4ED8', bg:'#EFF6FF', shape:'NT',
-    desc:'罪悪感を感じながらも将来の関係を論理的に考え、明確に断れるタイプ。外から見ると冷静だけど、断るたびに内心ドキドキしています。その矛盾があなたを深くしています。',
-    advice:'論理と感情を使い分けられるのがあなたの強みです。感情を少し表に出すと、相手の受け取り方がさらに良くなります。' },
-  ISFP:{ name:'マシュマロハート型', tag:'やさしさが重荷になりがち',    color:'#F472B6', bg:'#FFF0F8', shape:'SF',
-    desc:'断ることに強い罪悪感を感じる、心のやわらかいタイプ。今この瞬間の相手の気持ちを考えすぎて、ついあいまいな返事になりがち。でもその優しさはちゃんと相手に伝わっています。',
-    advice:'「断る＝相手を傷つける」ではありません。このアプリで「やんわり断る」練習をしていきましょう。' },
-  ISFJ:{ name:'泣きながらNO型', tag:'感情全開の正直断り屋',          color:'#EA580C', bg:'#FFF7ED', shape:'SF',
-    desc:'断ることに罪悪感を感じながらも、今の相手の感情に真正面から向き合ってはっきり伝えるタイプ。感情がにじみ出る断り文になりがちですが、その誠実さは相手に響きます。',
-    advice:'感情をぶつけるより、少し整理してから送ると伝わりやすくなります。下書きして一晩寝かせるのがおすすめ。' },
-  ISTP:{ name:'無口な葛藤職人型', tag:'内心は嵐でも外は無表情',       color:'#475569', bg:'#F8FAFC', shape:'ST',
-    desc:'罪悪感はあるけど多くを語らず、今この場で論理的にぼかしながら断るタイプ。「どうせわかってもらえない」と思いながらも相手のことをちゃんと考えています。',
-    advice:'言葉を少し増やすだけで伝わり方がガラッと変わります。一言「誘ってくれてありがとう」を添えるだけでOK。' },
-  ISTJ:{ name:'誠実ルールブック型', tag:'几帳面な断り教科書タイプ',     color:'#374151', bg:'#F9FAFB', shape:'ST',
-    desc:'罪悪感を感じながらも、今の場面で論理的にはっきり断れるタイプ。理由をちゃんと伝える几帳面さがあり、断り文は短くても誠実。相手から信頼されやすいです。',
-    advice:'すでにかなり上手い断り方ができています。あとは少し「温かみ」を足すだけで完璧です。' },
-  ENFP:{ name:'みんなのおひさま型', tag:'フォロー上手な人たらし',       color:'#F59E0B', bg:'#FFFBEB', shape:'NF',
-    desc:'断ることへの罪悪感が少なく、将来の関係を大切にしながら感情豊かに動くタイプ。断り方が自然で、断られた方も「また誘おう」と思えるような希少種。',
-    advice:'すでに断り方はかなり上手いあなたには、フォロー文機能がおすすめ。さらに関係を深めていきましょう。' },
-  ENFJ:{ name:'ハートフル断り師型', tag:'断っても愛が伝わる奇跡のタイプ', color:'#059669', bg:'#ECFDF5', shape:'NF',
-    desc:'罪悪感なく、将来の関係を見据えて感情豊かに明確に断れるタイプ。断り文に温かさがあり、相手が「断られたのにありがとうって思った」と言うことも。断りの理想形です。',
-    advice:'あなたはすでに断り上手です。このアプリで引き出しを増やして、あらゆる状況に対応できるようになりましょう。' },
-  ENTP:{ name:'ちゃっかりキツネ型', tag:'立ち回り上手な腹黒断り師',     color:'#D97706', bg:'#FFFBEB', shape:'NT',
-    desc:'罪悪感が少なく、将来の関係を計算しながら上手くぼかして断るタイプ。「なんか断られたけど悪い気がしない」と思わせるのが得意。ちゃっかりしているようで実は誠実。',
-    advice:'その立ち回りのうまさは才能です。たまに正直に気持ちを伝えると、信頼がさらに深まります。' },
-  ENTJ:{ name:'完璧断り職人型', tag:'断りのスペシャリスト',            color:'#DC2626', bg:'#FEF2F2', shape:'NT',
-    desc:'罪悪感なく、将来の関係を考えた上で論理的に明確に断れるタイプ。断り方が上手すぎて「なぜかすがすがしい気持ちになった」と言われることも。断りの最終形態。',
-    advice:'断り方はすでに完璧です。このアプリはリラックスして使う感じで大丈夫。念のための引き出しとして活用してください。' },
-  ESFP:{ name:'ノリで断る陽気者型', tag:'場の空気を読む明るい断り屋',   color:'#9333EA', bg:'#FAF5FF', shape:'SF',
-    desc:'罪悪感が少なく、今この場の雰囲気を読みながら感情豊かにぼかして断るタイプ。「なんか断られたけど楽しい感じがした」と言わせるムードメーカー。',
-    advice:'ノリと勢いも大事ですが、たまに一言「また誘ってね」を添えると、関係がさらに続きやすくなります。' },
-  ESFJ:{ name:'笑顔でNOを言える型', tag:'元気よく断れる羨ましいタイプ', color:'#0891B2', bg:'#ECFEFF', shape:'SF',
-    desc:'罪悪感なく、今の場面で感情豊かにはっきり断れるタイプ。明るく堂々と断れるので周りから「断り方がさわやか」とよく言われます。実は断り上手な普通の人。',
-    advice:'その明るさと素直さを活かして、やんわりNOで引き出しを増やしてみましょう。' },
-  ESTP:{ name:'クールな一匹狼型', tag:'ドライに断って次に進む',        color:'#2563EB', bg:'#EFF6FF', shape:'ST',
-    desc:'罪悪感なく、今この場で論理的にぼかして断るタイプ。感情をあまり表に出さず、サラッと断ってサクッと次に進む。後を引かない断り方が得意な実力派。',
-    advice:'クールな断り方はあなたの強みですが、時々「気にしないでね」の一言を添えると相手が安心します。' },
-  ESTJ:{ name:'ドライ侍型', tag:'スパッと斬る令和の武士',             color:'#1E40AF', bg:'#EFF6FF', shape:'ST',
-    desc:'罪悪感なく、今の場面で論理的にはっきり断れるタイプ。断り方がシンプルで潔く、相手からは「この人はちゃんとNOと言える人だ」と信頼されます。',
-    advice:'断り方は申し分ありません。少しだけ柔らかい表現を使うと、さらに幅が広がります。' },
+  WFTP:{ name:'もやもや守護天使', tag:'反省会の常連さん',             color:'#EC4899', bg:'#FFF0F8', grp:'WF',
+    desc:'断ることに罪悪感を感じ、将来の関係を大切にしながら、相手への気遣いを優先してじっくり考えるタイプ。断り文を3回書き直してやっと送信。その繊細さがあなたの魅力です。',
+    advice:'完璧な断り文は存在しません。「まあこれでいいか」のハードルを下げると、ぐっと楽になります。' },
+  WFTS:{ name:'ふわふわ月見うさぎ', tag:'直感で動く夢見がち',         color:'#A855F7', bg:'#FAF5FF', grp:'WF',
+    desc:'感情と理想を大切にしつつ、相手を気遣いながらも即断できるタイプ。「なんかこれ送ればよさそう！」という直感が意外と正しい。少し心配症だけど行動力はある。',
+    advice:'直感はあなたの武器。でも送る前に1回読み返す習慣をつけると、さらに完璧になります。' },
+  WFAP:{ name:'こっそり泣き虫', tag:'内心でひとり反省会',             color:'#F97316', bg:'#FFF7ED', grp:'WF',
+    desc:'感情豊かで理想を持ちながら、自分の意思を大切にして慎重に動くタイプ。断った後に「あれでよかったのか…」と枕の中で悩むことも。その感受性が断り文をリアルにする。',
+    advice:'あなたの文章には感情が自然に乗ります。下書きして1時間後に見直すだけで、ぐっと洗練されます。' },
+  WFAS:{ name:'感情大爆発お姫様', tag:'ドラマクイーンな断り師',       color:'#EF4444', bg:'#FEF2F2', grp:'WF',
+    desc:'感情と理想を全開にして、自分軸で即断するタイプ。断り文に温度があり、読んだ側が「なぜか申し訳なくなる」という謎現象を起こせる。感情表現がそのまま武器。',
+    advice:'そのパワーは才能ですが、送信前に「テンション下がったとき読んでも大丈夫か」を確認すると安心です。' },
+  WRTP:{ name:'永遠の気遣い妖精', tag:'ケアが止まらないやさしい人',   color:'#F59E0B', bg:'#FFFBEB', grp:'WR',
+    desc:'感情を大切にしながら現実的に動き、相手を気遣って慎重に断るタイプ。断った後も「大丈夫かな」とフォローを欠かさない。みんなに愛されるタイプ。',
+    advice:'フォロー文機能、あなたのためにあります。断った後のケアを上手に活用しましょう。' },
+  WRTS:{ name:'笑顔でNOが言える人', tag:'うらやましいほどの自然体',   color:'#10B981', bg:'#ECFDF5', grp:'WR',
+    desc:'感情豊かで現実的、相手への気遣いがあって即断できるタイプ。断り方が自然で明るく、断られた方が「またお願いしよう」と思える希少種。断り上手の見本。',
+    advice:'すでにかなり上手です。やんわりNOでさらに引き出しを増やして、あらゆる状況に対応しましょう。' },
+  WRAP:{ name:'ほっこり姉御グマ', tag:'おおらかで地に足ついてる',     color:'#D97706', bg:'#FEF3C7', grp:'WR',
+    desc:'感情を大切にしながらも現実を見て、自分軸で慎重に断るタイプ。グイグイ来る相手にも「いや、ちょっと待ってくれる？」と落ち着いて対応できる安定感がある。',
+    advice:'その安定感は本当の強みです。時々「相手の気持ちも一言添える」と伝わり方がさらに柔らかくなります。' },
+  WRAS:{ name:'天然ラブリー迷子', tag:'感情まかせの自由人',           color:'#EC4899', bg:'#FDF2F8', grp:'WR',
+    desc:'感情を全開にして現実的に動き、自分軸で即断するタイプ。思ったことをそのまま伝えるので「なんか憎めない」断り方になりがち。天然キャラで周囲が許してしまう。',
+    advice:'その素直さは最大の武器。少しだけ「相手への感謝」を一言添えると、鬼に金棒です。' },
+  KFTP:{ name:'脳内シミュレーター博士', tag:'返事が遅いのには理由がある', color:'#4F46E5', bg:'#EEF2FF', grp:'KF',
+    desc:'論理で考えながら理想を追い、相手への気遣いを大切にして慎重に行動するタイプ。断る前に頭の中で10通りの返し方を試してから送信。その徹底ぶりが相手の信頼を得ます。',
+    advice:'考えすぎると相手が不安になります。「少し考えます」の一言を先に送るだけで、互いに楽になりますよ。' },
+  KFTS:{ name:'ちゃっかりキツネ', tag:'要領よく立ち回る策士',         color:'#7C3AED', bg:'#F5F3FF', grp:'KF',
+    desc:'論理と理想を持ち、相手を気遣いながら素早く判断するタイプ。「角が立たなくて、でもちゃんと断れてる」文章が自然に書けてしまう。立ち回りのうまさは天性のもの。',
+    advice:'その才能を活かして、状況別の断り文を増やしておくとさらに鬼に金棒です。' },
+  KFAP:{ name:'孤独の哲学者', tag:'独自理論を持つ論客',               color:'#1D4ED8', bg:'#EFF6FF', grp:'KF',
+    desc:'論理と理想を持ち、自分の軸を大切にして慎重に行動するタイプ。断りの文章に「なぜ断るか」の論理が自然に入り、読んだ側も納得してしまう。少し堅いけど信頼感がある。',
+    advice:'論理は強みですが、感情の一言を添えるともっと相手に届きます。「残念だけど」の一言が効きます。' },
+  KFAS:{ name:'理論武装ドラゴン', tag:'論理で全部解決しようとする',   color:'#2563EB', bg:'#DBEAFE', grp:'KF',
+    desc:'論理と理想を持ち、自分軸で即断するタイプ。断り文が「なぜなら～」から始まりがちで、読んだ側が「なるほど…」と言わざるを得ない。論理の炎で全部焼き払う。',
+    advice:'その論理力は最強ですが、論理だけだと少し冷たく見えることも。温かみの一言で完璧になります。' },
+  KRTP:{ name:'几帳面断り職人', tag:'誠実で丁寧な断り教科書',         color:'#059669', bg:'#ECFDF5', grp:'KR',
+    desc:'論理で現実的に判断し、相手を気遣って慎重に断るタイプ。断り文が短くても誠実で、相手から「この人は信頼できる」と思われる。断りの教科書があるなら、あなたが書く側。',
+    advice:'すでにかなり上手です。少し「温かみ」を足すだけで完璧なので、フォロー文機能も活用してみてください。' },
+  KRTS:{ name:'冷静スナイパー', tag:'素早く的確、ブレない断り屋',     color:'#0891B2', bg:'#ECFEFF', grp:'KR',
+    desc:'論理的で現実的、相手を気遣いながらも素早く断れるタイプ。「あ、もう断られた」と気づく前に終わっている。スマートで後味がいい断り方が得意な実力派。',
+    advice:'完璧な断り方ができています。このアプリで引き出しをさらに増やして、どんな状況にも対応できるようにしましょう。' },
+  KRAP:{ name:'孤高のオオカミ', tag:'自分のルールで生きる一匹狼',     color:'#475569', bg:'#F8FAFC', grp:'KR',
+    desc:'論理と現実を重視し、自分の軸を大切にして慎重に断るタイプ。「付き合いが悪い」と見られることもあるが、断るべき時にブレずに断れる貴重な存在。内心は熱い。',
+    advice:'その一貫性は本物の強みです。たまに「また誘ってね」の一言を添えると、関係が続きやすくなります。' },
+  KRAS:{ name:'ドライ侍', tag:'スパッと斬る令和の武士',               color:'#374151', bg:'#F9FAFB', grp:'KR',
+    desc:'論理と現実を重視し、自分軸で即断するタイプ。断り方がシンプルで潔く、「この人、ちゃんとNOと言える人だ」と周囲から信頼される。断りの最終形態。',
+    advice:'断り方は申し分なし。少し柔らかい表現を使うだけで幅が広がります。やんわりNOで引き出しを増やしてみて。' },
 };
 
 let currentQ = 0;
-let _qAnswers = {}; // dimension letter tallies
+let _qAns = {};
 
 function startQuiz() {
   quizAnswers = [];
   currentQ = 0;
-  _qAnswers = {I:0,E:0,N:0,S:0,F:0,T:0,J:0,P:0};
+  _qAns = {W:0,K:0,F:0,R:0,T:0,A:0,P:0,S:0};
   document.getElementById('quiz-top').classList.add('hidden');
   document.getElementById('quiz-questions').classList.remove('hidden');
   document.getElementById('quiz-result').classList.add('hidden');
@@ -1155,9 +1192,9 @@ function answerQ(idx, el) {
     b.disabled = true; b.style.pointerEvents = 'none';
   });
   el.classList.add('selected');
-  const letter = Q_PAIRS[currentQ].letters[idx];
-  _qAnswers[letter]++;
-  quizAnswers.push(letter);
+  const dimIdx = idx < 2 ? 0 : 1;
+  _qAns[Q_PAIRS[currentQ].lets[dimIdx]]++;
+  quizAnswers.push(Q_PAIRS[currentQ].lets[dimIdx]);
   currentQ++;
   setTimeout(() => {
     if (currentQ < Q_PAIRS.length) renderQuestion();
@@ -1169,30 +1206,66 @@ function showQuizResult() {
   document.getElementById('quiz-questions').classList.add('hidden');
   document.getElementById('quiz-result').classList.remove('hidden');
   const code = [
-    _qAnswers.I >= _qAnswers.E ? 'I':'E',
-    _qAnswers.N >= _qAnswers.S ? 'N':'S',
-    _qAnswers.F >= _qAnswers.T ? 'F':'T',
-    _qAnswers.J >= _qAnswers.P ? 'J':'P',
+    _qAns.W >= _qAns.K ? 'W':'K',
+    _qAns.F >= _qAns.R ? 'F':'R',
+    _qAns.T >= _qAns.A ? 'T':'A',
+    _qAns.P >= _qAns.S ? 'P':'S',
   ].join('');
-  const t = QUIZ_TYPES[code] || QUIZ_TYPES['ISFP'];
-  const svg = _qSvg(t.shape, t.color, t.bg);
-  const dimHtml = ['I/E','N/S','F/T','J/P'].map((pair, i) => {
-    const [a,b] = pair.split('/');
-    const va = _qAnswers[a], vb = _qAnswers[b];
-    const win = va >= vb ? a : b;
-    const pct = Math.round((Math.max(va,vb)/(va+vb||1))*100);
-    return `<div class="qr-dim-row"><span class="qr-dim-lbl">${win}</span><div class="qr-dim-bar"><div class="qr-dim-fill" style="width:${pct}%;background:${t.color}"></div></div><span class="qr-dim-pct">${pct}%</span></div>`;
+  const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
+  const charSvg = _charSvg(t.grp, t.color, t.bg);
+  const dimHtml = _DIM_PAIRS.map(([a,b], i) => {
+    const va = _qAns[a], vb = _qAns[b], tot = va + vb || 1;
+    const lpct = Math.round(va/tot*100), rpct = 100 - lpct;
+    const lwin = va >= vb;
+    return `<div class="qr-dim">
+      <div class="qr-dim-head">${_DIM_HEADS[i]}</div>
+      <div class="qr-dim-row">
+        <div class="qr-dim-side l">
+          <span class="qr-dim-pct ${lwin?'hi':''}" style="${lwin?'color:'+t.color:''}">${lpct}%</span>
+          <span class="qr-dim-lbl2 ${lwin?'hi':''}">${_DIM_NAMES[a]}</span>
+        </div>
+        <div class="qr-dim-bar"><div class="qr-dim-fill" style="width:${lpct}%;background:${t.color};opacity:${lwin?1:0.3}"></div></div>
+        <div class="qr-dim-side r">
+          <span class="qr-dim-pct ${!lwin?'hi':''}" style="${!lwin?'color:'+t.color:''}">${rpct}%</span>
+          <span class="qr-dim-lbl2 ${!lwin?'hi':''}">${_DIM_NAMES[b]}</span>
+        </div>
+      </div>
+    </div>`;
   }).join('');
   document.querySelector('#quiz-result .quiz-result-wrap').innerHTML = `
-    <div class="qr-illus">${svg}</div>
-    <div class="qr-code" style="color:${t.color}">${code}</div>
-    <div class="qr-char-name">${t.name}</div>
-    <span class="qr-tag" style="background:${t.bg};color:${t.color}">${t.tag}</span>
-    <div class="qr-dims">${dimHtml}</div>
+    <div class="qr-hero">
+      <div class="qr-char-art">${charSvg}</div>
+      <div class="qr-hero-info">
+        <div class="qr-type-label">あなたの断り方タイプ</div>
+        <div class="qr-code" style="color:${t.color}">${code}</div>
+        <div class="qr-char-name">${t.name}</div>
+        <span class="qr-tag" style="background:${t.bg};color:${t.color}">${t.tag}</span>
+      </div>
+    </div>
+    <div class="qr-dims-card">
+      <div class="qr-dims-ttl">あなたの断りスタイル</div>
+      ${dimHtml}
+    </div>
     <div class="result-desc">${t.desc}</div>
     <div class="result-advice" style="background:${t.bg}"><strong style="color:${t.color};display:block;margin-bottom:6px">💡 アドバイス</strong>${t.advice}</div>
+    <button class="qr-share-x" onclick="shareQuizResult('${code}')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      Xでシェア
+    </button>
     <button class="btn-retry-quiz" onclick="retryQuiz()">もう一度診断する</button>
   `;
+}
+
+function shareQuizResult(code) {
+  const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
+  const dims = _DIM_PAIRS.map(([a,b]) => {
+    const va = _qAns[a], vb = _qAns[b], tot = va+vb||1;
+    const win = va>=vb ? a : b;
+    const pct = Math.round(Math.max(va,vb)/tot*100);
+    return `${_DIM_NAMES[win]} ${pct}%`;
+  }).join(' / ');
+  const txt = `断り方タイプ診断してみた！\n\n【${t.name}】\n${code} "${t.tag}"\n\n${dims}\n\nあなたは？→ https://yanwari-no.onrender.com\n#やんわりNO #断り上手診断`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt), '_blank');
 }
 
 function retryQuiz() {
@@ -1280,36 +1353,20 @@ async function buildShareCanvas(text, sitLabel) {
 /* ─────────────────────────────────────
    SHARE
 ───────────────────────────────────── */
-async function shareX() {
+function shareX() {
   const sit = SIT_LABELS[sel.situation] || '';
   const text = currentResults[0] || '';
-  const excerpt = text.length > 55 ? text.slice(0, 55) + '…' : text;
-  const tweetText = [
-    sit ? `${sit}の断り方、AIに作ってもらった` : 'AIに断り文を作ってもらった',
+  const excerpt = text.length > 50 ? text.slice(0, 50) + '…' : text;
+  const txt = [
+    sit ? `${sit}の断り方、AIに作ってもらった✍️` : 'AIに断り文を作ってもらった✍️',
     '',
-    excerpt ? `「${excerpt}」` : '',
+    excerpt ? `「${excerpt}」` : null,
     '',
-    '→ やんわりNO',
+    '断り文に困ったらやんわりNO',
     'https://yanwari-no.onrender.com',
-    '#やんわりNO',
+    '#やんわりNO #断り上手',
   ].filter(l => l !== null).join('\n');
-
-  // Mobile: Web Share API with image
-  if (text && typeof navigator.canShare === 'function') {
-    try {
-      const cv = await buildShareCanvas(text, sit);
-      const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
-      const file = new File([blob], 'yanwari-no.png', { type: 'image/png' });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], text: tweetText });
-        return;
-      }
-    } catch(e) {
-      if (e?.name === 'AbortError') return;
-    }
-  }
-  // Desktop fallback
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt), '_blank');
 }
 
 /* ─────────────────────────────────────
