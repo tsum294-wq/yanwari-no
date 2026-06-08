@@ -40,16 +40,18 @@
     .tab-badge{position:absolute;top:6px;right:calc(50% - 16px);background:var(--coral);color:#fff;font-size:9px;font-weight:800;padding:1px 5px;border-radius:100px;min-width:16px;text-align:center}
 
     /* ── Shared components ── */
-    .wrap{max-width:480px;margin:0 auto;padding:0 20px}
+    .wrap{max-width:480px;margin:0 auto;padding:0 16px}
     .page-header{padding:20px 20px 4px;max-width:480px;margin:0 auto}
     .page-title{font-size:20px;font-weight:900;letter-spacing:-.3px}
     .page-sub{font-size:13px;color:var(--sub);margin-top:4px}
 
     .section{margin-bottom:10px}
+    .section .chips{margin:0 -16px;padding-left:16px;padding-right:16px}
     .section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;padding-left:2px}
 
-    .chips{display:flex;flex-wrap:wrap;gap:6px}
-    .chip{padding:7px 11px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .16s;line-height:1;-webkit-tap-highlight-color:transparent;user-select:none}
+    .chips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{padding:7px 13px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .16s;line-height:1;-webkit-tap-highlight-color:transparent;user-select:none;flex-shrink:0}
     .chip:hover{color:var(--coral)}
     .chip.on{background:var(--coral);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(242,102,90,.36)}
 
