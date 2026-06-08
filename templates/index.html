@@ -237,6 +237,20 @@
     .q-opt.selected{border-color:var(--coral);background:var(--coral-pale);color:var(--coral);font-weight:700}
     .q-back{display:flex;align-items:center;gap:5px;padding:0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:14px}
     .q-back:active{opacity:.5}
+    .btn-type-list{width:100%;margin-top:10px;padding:13px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--sub);box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
+    .btn-type-list:hover{border-color:var(--coral);color:var(--coral)}
+    .type-list-wrap{padding:16px 16px 100px}
+    .type-list-hd{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+    .type-list-back{display:flex;align-items:center;gap:5px;padding:0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .type-list-back:active{opacity:.5}
+    .type-list-ttl{font-size:15px;font-weight:900}
+    .type-list-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .type-card{border-radius:18px;padding:14px 12px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;box-shadow:0 2px 10px var(--shadow)}
+    .type-card-art{width:80px;height:80px;border-radius:16px;overflow:hidden;flex-shrink:0}
+    .type-card-art svg{width:100%;height:100%}
+    .type-card-code{font-size:17px;font-weight:900;letter-spacing:2px}
+    .type-card-name{font-size:12px;font-weight:800;line-height:1.4}
+    .type-card-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;background:rgba(0,0,0,0.07)}
 
     /* Quiz result */
     .quiz-result-wrap{max-width:480px;margin:0 auto;padding:20px 20px 100px;text-align:center}
@@ -551,6 +565,19 @@
         <p>12の質問に4択で答えて、あなたの「断りタイプ」を診断。全16タイプ。</p>
       </div>
       <button class="btn-start" onclick="startQuiz()">診断スタート</button>
+      <button class="btn-type-list" onclick="showTypeList()">全16タイプを見る</button>
+    </div>
+    <div id="quiz-typelist" class="hidden">
+      <div class="type-list-wrap">
+        <div class="type-list-hd">
+          <button class="type-list-back" onclick="hideTypeList()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            もどる
+          </button>
+          <div class="type-list-ttl">全16タイプ一覧</div>
+        </div>
+        <div class="type-list-grid" id="type-list-grid"></div>
+      </div>
     </div>
     <div id="quiz-questions" class="hidden">
       <div class="quiz-q-wrap">
@@ -1295,6 +1322,25 @@ function shareQuizResult(code) {
 
 function retryQuiz() {
   document.getElementById('quiz-result').classList.add('hidden');
+  document.getElementById('quiz-top').classList.remove('hidden');
+}
+
+function showTypeList() {
+  document.getElementById('quiz-top').classList.add('hidden');
+  const grid = document.getElementById('type-list-grid');
+  grid.innerHTML = Object.entries(QUIZ_TYPES).map(([code, t]) => `
+    <div class="type-card" style="background:${t.bg}">
+      <div class="type-card-art">${_charSvg(t.grp, t.color, t.bg)}</div>
+      <div class="type-card-code" style="color:${t.color}">${code}</div>
+      <div class="type-card-name">${t.name}</div>
+      <span class="type-card-tag" style="color:${t.color}">${t.tag}</span>
+    </div>
+  `).join('');
+  document.getElementById('quiz-typelist').classList.remove('hidden');
+}
+
+function hideTypeList() {
+  document.getElementById('quiz-typelist').classList.add('hidden');
   document.getElementById('quiz-top').classList.remove('hidden');
 }
 
