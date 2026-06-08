@@ -788,7 +788,7 @@ async function generate() {
     if (data.success) {
       currentResults = parseResults(data.result, ['さらりと断る系','気持ち重視系','次につなげる系']);
       renderResultCards();
-      updateCounter();
+      bumpCountDisplay();
       setTimeout(() => showScreen('s-results'), 400);
     } else { showScreen('s-main'); showErr(data.error || '生成に失敗しました。'); }
   } catch { showScreen('s-main'); showErr('通信エラーが発生しました。'); }
@@ -807,7 +807,7 @@ async function retryGenerate() {
     if (data.success) {
       currentResults = parseResults(data.result, ['さらりと断る系','気持ち重視系','次につなげる系']);
       renderResultCards();
-      updateCounter();
+      bumpCountDisplay();
       setTimeout(() => showScreen('s-results'), 400);
     } else { showScreen('s-results'); toast(data.error || '再生成失敗'); }
   } catch { showScreen('s-results'); toast('通信エラー'); }
@@ -946,18 +946,19 @@ function updateHistoryBadge() {
 }
 
 /* ─────────────────────────────────────
-   COUNTER
+   COUNTER (global via server)
 ───────────────────────────────────── */
-function updateCounter() {
-  let n = parseInt(localStorage.getItem('yanwari_count') || '0') + 1;
-  localStorage.setItem('yanwari_count', n);
-  const el = document.getElementById('counter-text');
-  if (el) el.textContent = `${n} 回の断りをサポート`;
+function fetchGlobalCount() {
+  fetch('/count').then(r => r.json()).then(d => {
+    const el = document.getElementById('counter-text');
+    if (el) el.textContent = Number(d.count).toLocaleString('ja-JP');
+  }).catch(() => {});
 }
-function initCounter() {
-  const n = parseInt(localStorage.getItem('yanwari_count') || '0');
+function bumpCountDisplay() {
   const el = document.getElementById('counter-text');
-  if (el) el.textContent = `${n} 回の断りをサポート`;
+  if (!el) return;
+  const n = parseInt(el.textContent.replace(/,/g, '') || '0') + 1;
+  el.textContent = n.toLocaleString('ja-JP');
 }
 
 /* ─────────────────────────────────────
@@ -1099,12 +1100,115 @@ function retryQuiz() {
 }
 
 /* ─────────────────────────────────────
+   SHARE IMAGE (Canvas)
+───────────────────────────────────── */
+function _roundRect(c, x, y, w, h, r) {
+  c.beginPath();
+  c.moveTo(x+r, y);
+  c.lineTo(x+w-r, y); c.quadraticCurveTo(x+w, y, x+w, y+r);
+  c.lineTo(x+w, y+h-r); c.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+  c.lineTo(x+r, y+h); c.quadraticCurveTo(x, y+h, x, y+h-r);
+  c.lineTo(x, y+r); c.quadraticCurveTo(x, y, x+r, y);
+  c.closePath();
+}
+function _wrapText(c, text, x, y, maxW, lineH) {
+  let line = '', curY = y;
+  for (let i = 0; i < text.length; i++) {
+    const test = line + text[i];
+    if (c.measureText(test).width > maxW && line) {
+      c.fillText(line, x, curY); curY += lineH; line = text[i];
+    } else { line = test; }
+    if (i === text.length - 1 && line) c.fillText(line, x, curY);
+  }
+  return curY;
+}
+async function buildShareCanvas(text, sitLabel) {
+  await document.fonts.ready;
+  const W = 1080, H = 1080;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const c = cv.getContext('2d');
+
+  // Background
+  const bg = c.createLinearGradient(0, 0, W, H);
+  bg.addColorStop(0, '#F2665A'); bg.addColorStop(1, '#C94A3F');
+  c.fillStyle = bg; c.fillRect(0, 0, W, H);
+
+  // Deco circles
+  c.fillStyle = 'rgba(255,255,255,0.07)';
+  c.beginPath(); c.arc(W + 60, -60, 280, 0, Math.PI*2); c.fill();
+  c.fillStyle = 'rgba(255,255,255,0.05)';
+  c.beginPath(); c.arc(W - 80, 200, 160, 0, Math.PI*2); c.fill();
+
+  // White card
+  const cX=80, cY=160, cW=W-160, cH=H-280;
+  c.fillStyle = '#ffffff';
+  _roundRect(c, cX, cY, cW, cH, 48); c.fill();
+
+  // Brand tag
+  c.fillStyle = '#FEF0EE';
+  _roundRect(c, cX+44, cY+44, 260, 58, 29); c.fill();
+  c.fillStyle = '#F2665A';
+  c.font = '700 28px "Noto Sans JP",sans-serif';
+  c.fillText('やんわりNO', cX+62, cY+83);
+
+  // Situation tag
+  if (sitLabel) {
+    c.font = '500 24px "Noto Sans JP",sans-serif';
+    const tw = c.measureText(sitLabel).width;
+    c.fillStyle = '#F0F0F5';
+    _roundRect(c, cX+44, cY+120, tw+36, 48, 24); c.fill();
+    c.fillStyle = '#666672';
+    c.fillText(sitLabel, cX+62, cY+152);
+  }
+
+  // Message text
+  c.fillStyle = '#1A1A1A';
+  c.font = '500 36px "Noto Sans JP",sans-serif';
+  const msgX = cX+56, msgMaxW = cW-112;
+  _wrapText(c, `「${text}」`, msgX, cY+230, msgMaxW, 58);
+
+  // Bottom URL
+  c.fillStyle = 'rgba(255,255,255,0.5)';
+  c.font = '600 24px "Noto Sans JP",sans-serif';
+  c.fillText('yanwari-no.onrender.com', 80, H-56);
+
+  return cv;
+}
+
+/* ─────────────────────────────────────
    SHARE
 ───────────────────────────────────── */
-function shareX() {
-  const sit = SIT_LABELS[sel.situation] || '誘い';
-  const t = `${sit}の断り文、AIが一瞬で作ってくれるやつ作った\n\nこういうの欲しかったってなった\n\n→ やんわりNO\nhttps://yanwari-no.onrender.com\n\n#やんわりNO`;
-  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t)}`, '_blank');
+async function shareX() {
+  const sit = SIT_LABELS[sel.situation] || '';
+  const text = currentResults[0] || '';
+  const excerpt = text.length > 55 ? text.slice(0, 55) + '…' : text;
+  const tweetText = [
+    sit ? `${sit}の断り方、AIに作ってもらった` : 'AIに断り文を作ってもらった',
+    '',
+    excerpt ? `「${excerpt}」` : '',
+    '',
+    '→ やんわりNO',
+    'https://yanwari-no.onrender.com',
+    '#やんわりNO',
+  ].filter(l => l !== null).join('\n');
+
+  // Mobile: Web Share API with image
+  if (text && typeof navigator.canShare === 'function') {
+    try {
+      const cv = await buildShareCanvas(text, sit);
+      const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+      const file = new File([blob], 'yanwari-no.png', { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], text: tweetText });
+        return;
+      }
+    } catch(e) {
+      if (e?.name === 'AbortError') return;
+    }
+  }
+  // Desktop fallback
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`, '_blank');
 }
 
 /* ─────────────────────────────────────
@@ -1123,7 +1227,7 @@ function toast(msg) {
 /* ─────────────────────────────────────
    INIT
 ───────────────────────────────────── */
-initCounter();
+fetchGlobalCount();
 updateHistoryBadge();
 updateStepProgress();
 renderHomeLanding();

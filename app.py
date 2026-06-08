@@ -1,4 +1,6 @@
 import traceback
+import json
+import urllib.request
 from flask import Flask, request, jsonify, render_template
 import anthropic
 import os
@@ -11,6 +13,23 @@ except ImportError:
     pass
 
 app = Flask(__name__)
+
+_COUNTER_KEY = "yanwari_total"
+
+def _redis(path):
+    url   = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
+    token = os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
+    if not url or not token:
+        return None
+    try:
+        req = urllib.request.Request(
+            f"{url}/{path}",
+            headers={"Authorization": f"Bearer {token}"}
+        )
+        with urllib.request.urlopen(req, timeout=2) as r:
+            return json.loads(r.read()).get("result")
+    except Exception:
+        return None
 
 SITUATION_MAP = {
     "nomikai":     "飲み会・食事会への誘い",
@@ -68,6 +87,12 @@ PROMPT_TEMPLATE = """\
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/count")
+def count():
+    val = _redis(f"get/{_COUNTER_KEY}")
+    return jsonify({"count": int(val) if val else 0})
 
 
 @app.route("/health")
@@ -151,6 +176,7 @@ def generate():
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
+        _redis(f"incr/{_COUNTER_KEY}")
         return jsonify({"success": True, "result": message.content[0].text})
     except anthropic.AuthenticationError:
         return jsonify({
