@@ -149,18 +149,21 @@
     .opt-txt{flex:1}
     .opt-sub{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
     .step-body{padding:0 20px 20px}
-    /* ── Progress dot bar ── */
-    .step-prog-wrap{padding:10px 24px 12px;background:var(--bg);flex-shrink:0}
-    .spd-row{display:flex;align-items:center}
-    .spd-dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);transition:all .3s cubic-bezier(.4,0,.2,1)}
-    .spd-dot.active{border-color:var(--coral);background:var(--coral);color:#fff;box-shadow:0 2px 10px rgba(242,102,90,.35)}
-    .spd-dot.done{border-color:var(--coral);background:var(--coral);color:#fff}
-    .spd-line{flex:1;height:2px;background:var(--border);margin:0 4px;overflow:hidden;border-radius:2px}
-    .spd-line-fill{height:100%;background:var(--coral);width:0;transition:width .45s cubic-bezier(.4,0,.2,1);border-radius:2px}
-    .spd-labels{display:flex;align-items:flex-start;margin-top:5px}
-    .spd-labels span{font-size:10px;color:var(--muted);font-weight:600;text-align:center;width:34px;flex-shrink:0;transition:color .3s}
-    .spd-labels span.active{color:var(--coral)}
-    .spd-lbl-gap{flex:1}
+    /* ── App header ── */
+    .app-header{height:44px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;flex-shrink:0}
+    .app-header-inner{display:flex;align-items:center;gap:8px}
+    .app-logo-icon{width:26px;height:26px;background:var(--coral);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .app-header-name{font-size:16px;font-weight:900;letter-spacing:-.3px;color:var(--text)}
+
+    /* ── Scrubber progress bar ── */
+    .step-prog-wrap{padding:9px 28px 10px;background:var(--bg);flex-shrink:0}
+    .spbar-wrap{padding:0 6px;margin-bottom:7px}
+    .spbar-track{position:relative;height:3px;background:var(--border);border-radius:100px;overflow:visible}
+    .spbar-fill{position:absolute;left:0;top:0;height:100%;background:var(--coral);border-radius:100px;transition:width .35s cubic-bezier(.4,0,.2,1)}
+    .spbar-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;background:#fff;border:2.5px solid var(--coral);border-radius:50%;box-shadow:0 1px 6px rgba(242,102,90,.3);transition:left .35s cubic-bezier(.4,0,.2,1)}
+    .spbar-labels{display:flex;justify-content:space-between}
+    .spbar-labels span{font-size:10px;color:var(--muted);font-weight:600;transition:color .3s}
+    .spbar-labels span.active{color:var(--coral)}
 
     /* ── HISTORY tab ── */
     .history-item{background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 10px var(--shadow);display:flex;align-items:flex-start;gap:12px}
@@ -337,6 +340,12 @@
 
 <!-- ═══ MAIN APP (with tabs) ═══ -->
 <div id="s-main" class="screen active">
+<header class="app-header">
+  <div class="app-header-inner">
+    <div class="app-logo-icon"><svg width="16" height="16" viewBox="0 0 40 40" fill="none"><path d="M6 8C6 5.79 7.79 4 10 4H30C32.21 4 34 5.79 34 8V24C34 26.21 32.21 28 30 28H22L14 36V28H10C7.79 28 6 26.21 6 24V8Z" fill="white" fill-opacity=".95"/><path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+    <span class="app-header-name">やんわりNO</span>
+  </div>
+</header>
 <div class="s-main-scroll">
   <!-- TAB: HOME — step wizard -->
   <div id="tab-home" class="tab-page active">
@@ -356,9 +365,9 @@
         <button class="step-opt" data-v="date"     onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span class="opt-txt">個人的なお出かけ</span></button>
         <button class="step-opt" data-v="kokuhaku" onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span><span class="opt-txt">告白への返事</span></button>
         <button class="step-opt" data-v="work"     onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></span><span class="opt-txt">仕事・依頼の断り</span></button>
-        <button class="step-opt" data-v="kanyu"    onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span><span class="opt-txt">勧誘・セールス断り</span></button>
-        <button class="step-opt" data-v="okane"    onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><span class="opt-txt">お金の貸し借り断り</span></button>
-        <button class="step-opt" data-v="line"     onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="opt-txt">LINEグループ招待断り</span></button>
+        <button class="step-opt" data-v="kanyu"    onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></span><span class="opt-txt">勧誘・セールス</span></button>
+        <button class="step-opt" data-v="okane"    onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></span><span class="opt-txt">お金の貸し借り</span></button>
+        <button class="step-opt" data-v="line"     onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="opt-txt">LINEグループ招待</span></button>
         <button class="step-opt" data-v="other"    onclick="pickSituation(this)"><span class="opt-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></span><span class="opt-txt">その他</span></button>
       </div>
     </div>
@@ -464,22 +473,16 @@
 
 <!-- Tab bar is a flex-child of #s-main — physically below the scroll area, cannot move -->
 <div class="step-prog-wrap" id="step-prog-wrap">
-  <div class="spd-row">
-    <div class="spd-dot active" id="spd1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-    <div class="spd-line"><div class="spd-line-fill" id="spdl1"></div></div>
-    <div class="spd-dot" id="spd2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-    <div class="spd-line"><div class="spd-line-fill" id="spdl2"></div></div>
-    <div class="spd-dot" id="spd3"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
-    <div class="spd-line"><div class="spd-line-fill" id="spdl3"></div></div>
-    <div class="spd-dot" id="spd4"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+  <div class="spbar-wrap">
+    <div class="spbar-track">
+      <div class="spbar-fill" id="spbar-fill"></div>
+      <div class="spbar-thumb" id="spbar-thumb"></div>
+    </div>
   </div>
-  <div class="spd-labels">
+  <div class="spbar-labels">
     <span id="spdlbl1" class="active">状況</span>
-    <div class="spd-lbl-gap"></div>
     <span id="spdlbl2">関係</span>
-    <div class="spd-lbl-gap"></div>
     <span id="spdlbl3">強さ</span>
-    <div class="spd-lbl-gap"></div>
     <span id="spdlbl4">補足</span>
   </div>
 </div>
@@ -519,8 +522,8 @@ let currentStep = 1;
 const SIT_LABELS = {
   nomikai:'飲み会・食事会', goukon:'合コン・デート', shift:'バイトシフト交代',
   nijikai:'2次会・3次会', event:'イベント・勉強会', date:'個人的なお出かけ',
-  kokuhaku:'告白への返事', work:'仕事・依頼の断り', kanyu:'勧誘・セールス断り',
-  okane:'お金の貸し借り断り', line:'LINEグループ招待断り', other:'その他'
+  kokuhaku:'告白への返事', work:'仕事・依頼の断り', kanyu:'勧誘・セールス',
+  okane:'お金の貸し借り', line:'LINEグループ招待', other:'その他'
 };
 const REL_LABELS = {
   friend:'友達・同期', senpai:'先輩・上司', kouhai:'後輩・部下',
@@ -602,26 +605,16 @@ function restoreStepSelection(n) {
       o.classList.toggle('on', parseInt(o.dataset.s) === sel.strength));
   }
 }
-const SPD_ICONS = [
-  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
-  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`,
-  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-];
-const CHECK_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+const STEP_PCTS = [12.5, 37.5, 62.5, 87.5];
 function updateStepProgress() {
+  const fill = document.getElementById('spbar-fill');
+  const thumb = document.getElementById('spbar-thumb');
+  const pct = STEP_PCTS[currentStep - 1];
+  if (fill) fill.style.width = pct + '%';
+  if (thumb) thumb.style.left = pct + '%';
   for (let i = 1; i <= 4; i++) {
-    const dot = document.getElementById('spd' + i);
     const lbl = document.getElementById('spdlbl' + i);
-    if (!dot) continue;
-    dot.classList.remove('active', 'done');
-    if (i < currentStep) { dot.classList.add('done'); dot.innerHTML = CHECK_ICON; }
-    else { dot.classList.toggle('active', i === currentStep); dot.innerHTML = SPD_ICONS[i-1]; }
     if (lbl) lbl.classList.toggle('active', i === currentStep);
-  }
-  for (let i = 1; i <= 3; i++) {
-    const fill = document.getElementById('spdl' + i);
-    if (fill) fill.style.width = i < currentStep ? '100%' : '0%';
   }
 }
 function pickSituation(el) {
