@@ -131,8 +131,12 @@
     .home-hero-tag{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:100px;margin-bottom:14px}
     .home-hero-h{font-size:27px;font-weight:900;color:#fff;line-height:1.25;letter-spacing:-.5px;margin-bottom:9px;position:relative}
     .home-hero-sub{font-size:13px;color:rgba(255,255,255,.85);line-height:1.6;margin-bottom:22px;position:relative}
+    .home-hero-counter{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:700;padding:4px 11px;border-radius:100px;margin-bottom:18px}
     .home-hero-btn{background:#fff;color:var(--coral);font-size:15px;font-weight:800;padding:14px 28px;border-radius:100px;border:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 8px 28px rgba(0,0,0,.18);cursor:pointer;font-family:inherit;position:relative;-webkit-tap-highlight-color:transparent;transition:transform .15s,box-shadow .15s}
     .home-hero-btn:active{transform:scale(.97);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+    .loading-tip{margin-top:28px;background:var(--surface);border-radius:14px;padding:14px 18px;max-width:320px;width:100%;box-shadow:0 2px 10px var(--shadow);text-align:center}
+    .loading-tip-label{font-size:10px;font-weight:700;color:var(--coral);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+    .loading-tip-text{font-size:13px;color:var(--sub);line-height:1.6}
     .home-body{padding:18px 20px 24px;display:flex;flex-direction:column;gap:14px}
     .home-features{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
     .home-feat{background:var(--surface);border-radius:14px;padding:14px 10px;text-align:center;box-shadow:0 2px 10px var(--shadow);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .12s;border:none;font-family:inherit}
@@ -290,6 +294,10 @@
     <div class="loading-sub">ちょうどいい言い方を探しています...</div>
     <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
     <div class="loading-chips" id="loading-chips"></div>
+    <div class="loading-tip">
+      <div class="loading-tip-label">💡 ちょっとヒント</div>
+      <div class="loading-tip-text" id="loading-tip-text"></div>
+    </div>
   </div>
 </div>
 
@@ -380,6 +388,7 @@
         <div class="home-hero-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>AI が断り文を生成</div>
         <div class="home-hero-h">断るのが<br>怖くなくなる</div>
         <div class="home-hero-sub">状況を選ぶだけで、相手を傷つけない<br>ちょうどいい断り文を作ります。</div>
+        <div class="home-hero-counter"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>これまで <span id="counter-text">0</span> 回の断りをサポート</div>
         <button class="home-hero-btn" onclick="startWizard()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           断り文を作る
@@ -394,12 +403,12 @@
           </button>
           <button class="home-feat" onclick="switchTab('library')">
             <div class="home-feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
-            <div class="home-feat-label">テンプレ</div>
+            <div class="home-feat-label">テンプレ一覧</div>
             <div class="home-feat-sub">コピペ例文</div>
           </button>
           <button class="home-feat" onclick="switchTab('quiz')">
             <div class="home-feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-            <div class="home-feat-label">診断</div>
+            <div class="home-feat-label">断り上手診断</div>
             <div class="home-feat-sub">タイプ診断</div>
           </button>
         </div>
@@ -739,6 +748,23 @@ function pickStrengthStep(el) {
 }
 
 /* ─────────────────────────────────────
+   TIPS
+───────────────────────────────────── */
+const TIPS = [
+  '断りの一言目は「誘ってくれてありがとう」が最強です',
+  '理由は一言でOK。長く説明するほど言い訳に聞こえます',
+  '「今回は」の一言で、次につなげるシグナルを送れます',
+  '断った後のフォローは2〜3日後が自然なタイミングです',
+  '曖昧な返事より、やんわりでも明確な断りが相手への優しさです',
+  '「ちょっと予定があって」はシンプルで一番使いやすい断り文です',
+  '断ることは自分の時間を大切にすることでもあります',
+];
+function showTip() {
+  const el = document.getElementById('loading-tip-text');
+  if (el) el.textContent = TIPS[Math.floor(Math.random() * TIPS.length)];
+}
+
+/* ─────────────────────────────────────
    GENERATION
 ───────────────────────────────────── */
 async function generate() {
@@ -750,6 +776,7 @@ async function generate() {
     `<div class="loading-chip coral">${SIT_LABELS[sel.situation]}</div>
      <div class="loading-chip coral">${REL_LABELS[sel.relationship]}</div>
      <div class="loading-chip">${strengthLabel}</div>`;
+  showTip();
   showScreen('s-loading');
   try {
     const r = await fetch('/generate', {
@@ -768,6 +795,7 @@ async function generate() {
 }
 
 async function retryGenerate() {
+  showTip();
   showScreen('s-loading');
   try {
     const r = await fetch('/generate', {
