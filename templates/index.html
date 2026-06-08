@@ -235,6 +235,8 @@
     .q-opt{padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;text-align:left;color:var(--text);box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .q-opt:hover{border-color:var(--coral);color:var(--coral)}
     .q-opt.selected{border-color:var(--coral);background:var(--coral-pale);color:var(--coral);font-weight:700}
+    .q-back{display:flex;align-items:center;gap:5px;padding:0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:14px}
+    .q-back:active{opacity:.5}
 
     /* Quiz result */
     .quiz-result-wrap{max-width:480px;margin:0 auto;padding:20px 20px 100px;text-align:center}
@@ -552,8 +554,12 @@
     </div>
     <div id="quiz-questions" class="hidden">
       <div class="quiz-q-wrap">
+        <button class="q-back hidden" id="q-back" onclick="goBackQuiz()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          前の質問に戻る
+        </button>
         <div class="q-progress"><div class="q-progress-bar" id="q-bar" style="width:0%"></div></div>
-        <div class="q-num" id="q-num">Q1 / 5</div>
+        <div class="q-num" id="q-num">Q1 / 12</div>
         <div class="q-text" id="q-text"></div>
         <div class="q-options" id="q-opts"></div>
       </div>
@@ -1166,40 +1172,65 @@ const QUIZ_TYPES = {
 
 let currentQ = 0;
 let _qAns = {};
+let quizLocked = false;
+let quizHistory = [];
 
 function startQuiz() {
   quizAnswers = [];
   currentQ = 0;
   _qAns = {W:0,K:0,F:0,R:0,T:0,A:0,P:0,S:0};
+  quizLocked = false;
+  quizHistory = [];
   document.getElementById('quiz-top').classList.add('hidden');
   document.getElementById('quiz-questions').classList.remove('hidden');
   document.getElementById('quiz-result').classList.add('hidden');
   renderQuestion();
 }
 
-function renderQuestion() {
+function renderQuestion(prevIdx) {
+  quizLocked = false;
   const qp = Q_PAIRS[currentQ];
   document.getElementById('q-bar').style.width = `${(currentQ / Q_PAIRS.length) * 100}%`;
   document.getElementById('q-num').textContent = `Q${currentQ + 1} / ${Q_PAIRS.length}`;
   document.getElementById('q-text').textContent = qp.q;
-  document.getElementById('q-opts').innerHTML = qp.opts.map((o, i) =>
-    `<button class="q-opt q-opt-2" style="animation-delay:${i*0.09}s" onclick="answerQ(${i},this)">${o}</button>`
-  ).join('');
+  const backBtn = document.getElementById('q-back');
+  if (backBtn) backBtn.classList.toggle('hidden', currentQ === 0);
+  // Clear first → rAF ensures fresh paint, preventing color persistence from previous question
+  const optsEl = document.getElementById('q-opts');
+  optsEl.innerHTML = '';
+  requestAnimationFrame(() => {
+    optsEl.innerHTML = qp.opts.map((o, i) =>
+      `<button class="q-opt q-opt-2${prevIdx === i ? ' selected' : ''}" style="animation-delay:${i*0.09}s" onclick="answerQ(${i},this)">${o}</button>`
+    ).join('');
+  });
 }
 
 function answerQ(idx, el) {
+  if (quizLocked) return;
+  quizLocked = true;
   document.querySelectorAll('#q-opts .q-opt').forEach(b => {
     b.disabled = true; b.style.pointerEvents = 'none';
   });
   el.classList.add('selected');
   const dimIdx = idx < 2 ? 0 : 1;
-  _qAns[Q_PAIRS[currentQ].lets[dimIdx]]++;
-  quizAnswers.push(Q_PAIRS[currentQ].lets[dimIdx]);
+  const dimLetter = Q_PAIRS[currentQ].lets[dimIdx];
+  _qAns[dimLetter]++;
+  quizAnswers.push(dimLetter);
+  quizHistory.push({optIdx: idx, dimLetter});
   currentQ++;
   setTimeout(() => {
     if (currentQ < Q_PAIRS.length) renderQuestion();
     else showQuizResult();
   }, 340);
+}
+
+function goBackQuiz() {
+  if (currentQ === 0 || quizHistory.length === 0) return;
+  const prev = quizHistory.pop();
+  _qAns[prev.dimLetter]--;
+  quizAnswers.pop();
+  currentQ--;
+  renderQuestion(prev.optIdx);
 }
 
 function showQuizResult() {
@@ -1256,7 +1287,98 @@ function showQuizResult() {
   `;
 }
 
-function shareQuizResult(code) {
+async function buildQuizShareCanvas(code) {
+  await document.fonts.ready;
+  const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
+  const W = 1080, H = 1080;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const c = cv.getContext('2d');
+
+  // Background
+  c.fillStyle = t.bg;
+  c.fillRect(0, 0, W, H);
+
+  // Top accent bar
+  c.fillStyle = t.color;
+  c.fillRect(0, 0, W, 14);
+
+  // App brand pill
+  c.fillStyle = t.color;
+  _roundRect(c, 60, 54, 330, 62, 31); c.fill();
+  c.fillStyle = '#fff';
+  c.font = '700 26px "Noto Sans JP",sans-serif';
+  c.textBaseline = 'middle';
+  c.textAlign = 'left';
+  c.fillText('やんわりNO 断りタイプ診断', 82, 85);
+
+  // Type code
+  c.fillStyle = t.color;
+  c.font = '900 148px "Noto Sans JP",sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'alphabetic';
+  c.fillText(code, W / 2, 310);
+
+  // Character name
+  c.fillStyle = '#1A1A1A';
+  c.font = '800 52px "Noto Sans JP",sans-serif';
+  c.fillText(t.name, W / 2, 400);
+
+  // Tag pill
+  c.font = '700 30px "Noto Sans JP",sans-serif';
+  const tagW = c.measureText(t.tag).width + 64;
+  c.fillStyle = t.color;
+  _roundRect(c, W / 2 - tagW / 2, 422, tagW, 54, 27); c.fill();
+  c.fillStyle = '#fff';
+  c.fillText(t.tag, W / 2, 458);
+
+  // Dimension bars
+  const barStartY = 540;
+  const barGap = 108;
+  const labelW = 200;
+  const barX = 80;
+  const barW = W - 160;
+  const innerBarW = barW - labelW * 2;
+  const bh = 22;
+
+  _DIM_PAIRS.forEach(([a, b], i) => {
+    const va = _qAns[a], vb = _qAns[b], tot = va + vb || 1;
+    const lpct = Math.round(va / tot * 100), rpct = 100 - lpct;
+    const lwin = va >= vb;
+    const y = barStartY + i * barGap;
+
+    // Left label
+    c.textAlign = 'right';
+    c.font = `${lwin ? '800' : '500'} 30px "Noto Sans JP",sans-serif`;
+    c.fillStyle = lwin ? t.color : '#aaa';
+    c.fillText(`${_DIM_NAMES[a]} ${lpct}%`, barX + labelW - 14, y + 18);
+
+    // Right label
+    c.textAlign = 'left';
+    c.font = `${!lwin ? '800' : '500'} 30px "Noto Sans JP",sans-serif`;
+    c.fillStyle = !lwin ? t.color : '#aaa';
+    c.fillText(`${rpct}% ${_DIM_NAMES[b]}`, barX + labelW + innerBarW + 14, y + 18);
+
+    // Bar track
+    const bx = barX + labelW, by = y + 26;
+    c.fillStyle = 'rgba(0,0,0,0.1)';
+    _roundRect(c, bx, by, innerBarW, bh, bh / 2); c.fill();
+
+    // Bar fill
+    c.fillStyle = t.color;
+    _roundRect(c, bx, by, innerBarW * lpct / 100, bh, bh / 2); c.fill();
+  });
+
+  // Footer URL
+  c.textAlign = 'center';
+  c.font = '500 26px "Noto Sans JP",sans-serif';
+  c.fillStyle = 'rgba(0,0,0,0.3)';
+  c.fillText('yanwari-no.onrender.com  |  #やんわりNO #断り上手診断', W / 2, H - 54);
+
+  return cv;
+}
+
+async function shareQuizResult(code) {
   const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
   const dims = _DIM_PAIRS.map(([a,b]) => {
     const va = _qAns[a], vb = _qAns[b], tot = va+vb||1;
@@ -1264,8 +1386,24 @@ function shareQuizResult(code) {
     const pct = Math.round(Math.max(va,vb)/tot*100);
     return `${_DIM_NAMES[win]} ${pct}%`;
   }).join(' / ');
-  const txt = `断り方タイプ診断してみた！\n\n【${t.name}】\n${code} "${t.tag}"\n\n${dims}\n\nあなたは？→ https://yanwari-no.onrender.com\n#やんわりNO #断り上手診断`;
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt), '_blank');
+  const tweetTxt = `断り方タイプ診断してみた！\n\n【${t.name}】\n${code} "${t.tag}"\n\n${dims}\n\nあなたは？→ https://yanwari-no.onrender.com\n#やんわりNO #断り上手診断`;
+
+  // Generate PNG and download, then open tweet
+  try {
+    const cv = await buildQuizShareCanvas(code);
+    cv.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `yanwari-no-${code}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      toast('画像を保存しました。Xに貼り付けてシェアしてね📎');
+    }, 'image/png');
+  } catch(e) {}
+
+  setTimeout(() => {
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetTxt), '_blank');
+  }, 400);
 }
 
 function retryQuiz() {
