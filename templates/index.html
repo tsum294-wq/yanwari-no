@@ -28,8 +28,6 @@
     .s-main-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
     /* ── Tab pages (within main area) ── */
-    .tab-page{display:none;padding-bottom:24px}
-    .tab-page.active{display:block}
 
     /* ── Bottom tab bar (lives as flex-child of #s-main — cannot scroll) ── */
     .tab-bar{position:relative;width:100%;height:var(--tab-h);background:var(--surface);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);z-index:10;padding-bottom:env(safe-area-inset-bottom);flex-shrink:0}
@@ -123,6 +121,33 @@
     /* ── FOLLOW-UP screen ── */
     .followup-card{background:var(--surface);border-radius:20px;padding:18px 18px 14px;margin-bottom:12px;box-shadow:0 4px 18px var(--shadow)}
     .followup-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#7C6E3C;background:#FFFBEB;padding:4px 10px 4px 8px;border-radius:100px;margin-bottom:10px}
+
+    /* ── STEP WIZARD (home tab) ── */
+    .tab-page{display:none}
+    .tab-page.active{display:block}
+    #tab-history,#tab-library,#tab-quiz{padding-bottom:24px}
+    .s-main-scroll{overflow-x:hidden}
+    .step-panel{display:none}
+    .step-panel.active{display:block;animation:slideInRight .22s cubic-bezier(.4,0,.2,1) both}
+    .step-panel.exiting{display:block!important;animation:slideOutLeft .18s cubic-bezier(.4,0,.2,1) both;pointer-events:none}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes slideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
+    .step-header{padding:28px 20px 18px}
+    .step-back{display:inline-flex;align-items:center;gap:4px;padding:6px 12px 6px 8px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);margin-bottom:14px;-webkit-tap-highlight-color:transparent}
+    .step-back:hover{color:var(--coral)}
+    .step-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+    .step-q{font-size:21px;font-weight:900;line-height:1.3;letter-spacing:-.3px}
+    .step-hint{font-size:12px;color:var(--sub);margin-top:5px}
+    .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px}
+    .step-opt{padding:16px 10px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:center;color:var(--text);transition:border-color .12s,background .12s,box-shadow .12s;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px var(--shadow);line-height:1.4}
+    .step-opt:active{transform:scale(.96)}
+    .step-opt.on{background:var(--coral);color:#fff;border-color:var(--coral);box-shadow:0 4px 14px rgba(242,102,90,.36);font-weight:700}
+    .step-opt.full{grid-column:1/-1}
+    .opt-sub{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:3px}
+    .step-body{padding:0 20px 20px}
+    .step-prog-wrap{padding:8px 20px 10px;background:var(--bg);flex-shrink:0}
+    .step-prog-track{height:5px;background:var(--border);border-radius:100px;overflow:hidden}
+    .step-prog-fill{height:100%;background:var(--coral);border-radius:100px;transition:width .45s cubic-bezier(.4,0,.2,1);width:25%}
 
     /* ── HISTORY tab ── */
     .history-item{background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 10px var(--shadow);display:flex;align-items:flex-start;gap:12px}
@@ -317,73 +342,79 @@
 <!-- ═══ MAIN APP (with tabs) ═══ -->
 <div id="s-main" class="screen active">
 <div class="s-main-scroll">
-  <!-- TAB: HOME -->
+  <!-- TAB: HOME — step wizard -->
   <div id="tab-home" class="tab-page active">
-    <div class="wrap">
-      <div class="hero">
-        <div class="app-icon">
-          <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
-            <path d="M6 8C6 5.79 7.79 4 10 4H30C32.21 4 34 5.79 34 8V24C34 26.21 32.21 28 30 28H22L14 36V28H10C7.79 28 6 26.21 6 24V8Z" fill="white" fill-opacity=".95"/>
-            <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <h1>やんわりNO</h1>
-        <p>状況を選ぶだけで自然な断り文が完成</p>
-        <div class="counter-badge" id="counter-badge">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span id="counter-text">0 回の断りをサポート</span>
-        </div>
-      </div>
 
-      <div class="section">
-        <div class="section-label">断りたいシチュエーション</div>
-        <div class="chips">
-          <button class="chip" data-g="situation" data-v="nomikai"  onclick="pick(this)">飲み会・食事会</button>
-          <button class="chip" data-g="situation" data-v="goukon"   onclick="pick(this)">合コン・デート</button>
-          <button class="chip" data-g="situation" data-v="shift"    onclick="pick(this)">バイトシフト交代</button>
-          <button class="chip" data-g="situation" data-v="nijikai"  onclick="pick(this)">2次会・3次会</button>
-          <button class="chip" data-g="situation" data-v="event"    onclick="pick(this)">イベント・勉強会</button>
-          <button class="chip" data-g="situation" data-v="date"     onclick="pick(this)">個人的なお出かけ</button>
-          <button class="chip" data-g="situation" data-v="kokuhaku" onclick="pick(this)">告白への返事</button>
-          <button class="chip" data-g="situation" data-v="work"     onclick="pick(this)">仕事・依頼の断り</button>
-          <button class="chip" data-g="situation" data-v="kanyu"    onclick="pick(this)">勧誘・セールス断り</button>
-          <button class="chip" data-g="situation" data-v="okane"    onclick="pick(this)">お金の貸し借り断り</button>
-          <button class="chip" data-g="situation" data-v="line"     onclick="pick(this)">LINEグループ招待断り</button>
-          <button class="chip" data-g="situation" data-v="other"    onclick="pick(this)">その他</button>
-        </div>
+    <!-- STEP 1: シチュエーション -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-header">
+        <div class="step-lbl">STEP 1 / 4</div>
+        <div class="step-q">断りたいシチュエーションは？</div>
       </div>
-
-      <div class="section">
-        <div class="section-label">相手との関係</div>
-        <div class="chips">
-          <button class="chip" data-g="relationship" data-v="friend"       onclick="pick(this)">友達・同期</button>
-          <button class="chip" data-g="relationship" data-v="senpai"       onclick="pick(this)">先輩・上司</button>
-          <button class="chip" data-g="relationship" data-v="kouhai"       onclick="pick(this)">後輩・部下</button>
-          <button class="chip" data-g="relationship" data-v="acquaintance" onclick="pick(this)">あまり親しくない人</button>
-          <button class="chip" data-g="relationship" data-v="other"        onclick="pick(this)">その他</button>
-        </div>
+      <div class="step-grid" id="sgrid-1">
+        <button class="step-opt" data-v="nomikai"  onclick="pickSituation(this)">飲み会・食事会</button>
+        <button class="step-opt" data-v="goukon"   onclick="pickSituation(this)">合コン・デート</button>
+        <button class="step-opt" data-v="shift"    onclick="pickSituation(this)">バイトシフト交代</button>
+        <button class="step-opt" data-v="nijikai"  onclick="pickSituation(this)">2次会・3次会</button>
+        <button class="step-opt" data-v="event"    onclick="pickSituation(this)">イベント・勉強会</button>
+        <button class="step-opt" data-v="date"     onclick="pickSituation(this)">個人的なお出かけ</button>
+        <button class="step-opt" data-v="kokuhaku" onclick="pickSituation(this)">告白への返事</button>
+        <button class="step-opt" data-v="work"     onclick="pickSituation(this)">仕事・依頼の断り</button>
+        <button class="step-opt" data-v="kanyu"    onclick="pickSituation(this)">勧誘・セールス断り</button>
+        <button class="step-opt" data-v="okane"    onclick="pickSituation(this)">お金の貸し借り断り</button>
+        <button class="step-opt" data-v="line"     onclick="pickSituation(this)">LINEグループ招待断り</button>
+        <button class="step-opt" data-v="other"    onclick="pickSituation(this)">その他</button>
       </div>
-
-      <div class="section">
-        <div class="section-label">断りの強さ</div>
-        <div class="strength-row">
-          <button class="strength-btn on" data-s="1" onclick="pickStrength(this)">やんわり<span class="s-label">遠回しに</span></button>
-          <button class="strength-btn"    data-s="2" onclick="pickStrength(this)">ふつう<span class="s-label">バランスよく</span></button>
-          <button class="strength-btn"    data-s="3" onclick="pickStrength(this)">はっきり<span class="s-label">明確に断る</span></button>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-label">補足情報 <span style="font-weight:400;letter-spacing:0;text-transform:none">(任意)</span></div>
-        <div class="textarea-wrap"><textarea id="details" rows="1" placeholder="先週も断った、雰囲気を壊したくない、など"></textarea></div>
-      </div>
-
-      <div class="err hidden" id="err"></div>
-      <button class="btn-coral" id="btn-gen" onclick="generate()" style="margin-bottom:12px">
-        <span id="btn-label">断り文を生成する</span>
-      </button>
-      <div class="footer-note">made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a></div>
     </div>
+
+    <!-- STEP 2: 相手との関係 -->
+    <div class="step-panel" id="step-2">
+      <div class="step-header">
+        <button class="step-back" onclick="goToStep(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>戻る</button>
+        <div class="step-lbl">STEP 2 / 4</div>
+        <div class="step-q">相手との関係は？</div>
+      </div>
+      <div class="step-grid" id="sgrid-2">
+        <button class="step-opt" data-v="friend"       onclick="pickRelationship(this)">友達・同期</button>
+        <button class="step-opt" data-v="senpai"       onclick="pickRelationship(this)">先輩・上司</button>
+        <button class="step-opt" data-v="kouhai"       onclick="pickRelationship(this)">後輩・部下</button>
+        <button class="step-opt" data-v="acquaintance" onclick="pickRelationship(this)">あまり親しくない人</button>
+        <button class="step-opt full" data-v="other"   onclick="pickRelationship(this)">その他</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: 断りの強さ -->
+    <div class="step-panel" id="step-3">
+      <div class="step-header">
+        <button class="step-back" onclick="goToStep(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>戻る</button>
+        <div class="step-lbl">STEP 3 / 4</div>
+        <div class="step-q">断りの強さは？</div>
+      </div>
+      <div class="step-grid" id="sgrid-3">
+        <button class="step-opt" data-s="1" onclick="pickStrengthStep(this)">やんわり<span class="opt-sub">遠回しに</span></button>
+        <button class="step-opt" data-s="2" onclick="pickStrengthStep(this)">ふつう<span class="opt-sub">バランスよく</span></button>
+        <button class="step-opt full" data-s="3" onclick="pickStrengthStep(this)">はっきり<span class="opt-sub">明確に断る</span></button>
+      </div>
+    </div>
+
+    <!-- STEP 4: 補足 + 生成 -->
+    <div class="step-panel" id="step-4">
+      <div class="step-header">
+        <button class="step-back" onclick="goToStep(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>戻る</button>
+        <div class="step-lbl">STEP 4 / 4</div>
+        <div class="step-q">補足があれば</div>
+        <div class="step-hint">なくてもOK、あると精度UP</div>
+      </div>
+      <div class="step-body">
+        <div class="textarea-wrap" style="margin-bottom:16px"><textarea id="details" rows="3" placeholder="先週も断った、雰囲気を壊したくない、など"></textarea></div>
+        <div class="err hidden" id="err"></div>
+        <button class="btn-coral" id="btn-gen" onclick="generate()" style="margin-bottom:16px">
+          <span id="btn-label">断り文を生成する</span>
+        </button>
+        <div class="footer-note">made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a></div>
+      </div>
+    </div>
+
   </div>
 
   <!-- TAB: HISTORY -->
@@ -436,6 +467,9 @@
 </div><!-- /s-main-scroll -->
 
 <!-- Tab bar is a flex-child of #s-main — physically below the scroll area, cannot move -->
+<div class="step-prog-wrap" id="step-prog-wrap">
+  <div class="step-prog-track"><div class="step-prog-fill" id="step-prog-fill"></div></div>
+</div>
 <nav class="tab-bar" id="tab-bar">
   <button class="tab-btn active" id="tbtn-home" onclick="switchTab('home')">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -467,6 +501,7 @@ const sel = { situation: null, relationship: null, strength: 1 };
 let currentResults = [];
 let quizAnswers = [];
 let fuLoading = false;
+let currentStep = 1;
 
 const SIT_LABELS = {
   nomikai:'飲み会・食事会', goukon:'合コン・デート', shift:'バイトシフト交代',
@@ -512,21 +547,66 @@ function switchTab(name) {
   document.getElementById('tbtn-' + name).classList.add('active');
   const sc = document.querySelector('.s-main-scroll');
   if (sc) sc.scrollTop = 0;
+  const prog = document.getElementById('step-prog-wrap');
+  if (prog) prog.style.display = (name === 'home') ? '' : 'none';
   if (name === 'history') renderHistory();
   if (name === 'library') renderLibrary();
 }
 
 /* ─────────────────────────────────────
-   CHIP / STRENGTH SELECTION
+   STEP WIZARD
 ───────────────────────────────────── */
-function pick(el) {
-  const g = el.dataset.g;
-  document.querySelectorAll(`.chip[data-g="${g}"]`).forEach(c => c.classList.remove('on'));
-  el.classList.add('on'); sel[g] = el.dataset.v;
+function goToStep(n) {
+  if (n === currentStep) return;
+  const cur = document.getElementById('step-' + currentStep);
+  const next = document.getElementById('step-' + n);
+  cur.classList.add('exiting');
+  setTimeout(() => {
+    cur.classList.remove('active', 'exiting');
+    next.classList.add('active');
+    triggerStepAnim(next);
+    restoreStepSelection(n);
+    currentStep = n;
+    updateStepProgress();
+  }, 180);
 }
-function pickStrength(el) {
-  document.querySelectorAll('.strength-btn').forEach(b => b.classList.remove('on'));
+function triggerStepAnim(panel) {
+  panel.querySelectorAll('.step-opt').forEach((el, i) => {
+    el.style.animation = 'none';
+    void el.offsetWidth;
+    el.style.animation = `popIn .22s cubic-bezier(.34,1.56,.64,1) ${i * 0.06}s both`;
+  });
+}
+function restoreStepSelection(n) {
+  if (n === 1) {
+    document.querySelectorAll('#step-1 .step-opt').forEach(o =>
+      o.classList.toggle('on', o.dataset.v === sel.situation));
+  } else if (n === 2) {
+    document.querySelectorAll('#step-2 .step-opt').forEach(o =>
+      o.classList.toggle('on', o.dataset.v === sel.relationship));
+  } else if (n === 3) {
+    document.querySelectorAll('#step-3 .step-opt').forEach(o =>
+      o.classList.toggle('on', parseInt(o.dataset.s) === sel.strength));
+  }
+}
+function updateStepProgress() {
+  const el = document.getElementById('step-prog-fill');
+  if (el) el.style.width = (currentStep / 4 * 100) + '%';
+}
+function pickSituation(el) {
+  document.querySelectorAll('#step-1 .step-opt').forEach(o => o.classList.remove('on'));
+  el.classList.add('on'); sel.situation = el.dataset.v;
+  setTimeout(() => goToStep(2), 280);
+}
+function pickRelationship(el) {
+  document.querySelectorAll('#step-2 .step-opt').forEach(o => o.classList.remove('on'));
+  el.classList.add('on'); sel.relationship = el.dataset.v;
+  setTimeout(() => goToStep(3), 280);
+}
+function pickStrengthStep(el) {
+  document.querySelectorAll('#step-3 .step-opt').forEach(o => o.classList.remove('on'));
   el.classList.add('on'); sel.strength = parseInt(el.dataset.s);
+  setTimeout(() => goToStep(4), 280);
 }
 
 /* ─────────────────────────────────────
@@ -714,11 +794,13 @@ function updateHistoryBadge() {
 function updateCounter() {
   let n = parseInt(localStorage.getItem('yanwari_count') || '0') + 1;
   localStorage.setItem('yanwari_count', n);
-  document.getElementById('counter-text').textContent = `${n} 回の断りをサポート`;
+  const el = document.getElementById('counter-text');
+  if (el) el.textContent = `${n} 回の断りをサポート`;
 }
 function initCounter() {
   const n = parseInt(localStorage.getItem('yanwari_count') || '0');
-  document.getElementById('counter-text').textContent = `${n} 回の断りをサポート`;
+  const el = document.getElementById('counter-text');
+  if (el) el.textContent = `${n} 回の断りをサポート`;
 }
 
 /* ─────────────────────────────────────
@@ -886,6 +968,8 @@ function toast(msg) {
 ───────────────────────────────────── */
 initCounter();
 updateHistoryBadge();
+updateStepProgress();
+triggerStepAnim(document.getElementById('step-1'));
 fetch('/health').then(r => r.json()).then(d => {
   if (!d.key_set) showErr('APIキーが設定されていません。.env ファイルに ANTHROPIC_API_KEY を追加してください。');
 }).catch(() => {});
