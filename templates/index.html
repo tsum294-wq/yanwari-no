@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>やんわりNO – 断り文ジェネレーター</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23F2665A'/><path d='M15 20C15 14.5 19.5 10 25 10H75C80.5 10 85 14.5 85 20V60C85 65.5 80.5 70 75 70H55L35 90V70H25C19.5 70 15 65.5 15 60V20Z' fill='white' opacity='.95'/><path d='M32 41C32 41 37 33 50 41C63 49 68 41 68 41' stroke='%23F2665A' stroke-width='6' stroke-linecap='round'/></svg>"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet"/>
@@ -44,26 +45,26 @@
     .page-title{font-size:20px;font-weight:900;letter-spacing:-.3px}
     .page-sub{font-size:13px;color:var(--sub);margin-top:4px}
 
-    .section{margin-bottom:24px}
-    .section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding-left:2px}
+    .section{margin-bottom:10px}
+    .section-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;padding-left:2px}
 
-    .chips{display:flex;flex-wrap:wrap;gap:8px}
-    .chip{padding:9px 15px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .16s;line-height:1;-webkit-tap-highlight-color:transparent;user-select:none}
+    .chips{display:flex;flex-wrap:wrap;gap:6px}
+    .chip{padding:7px 11px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .16s;line-height:1;-webkit-tap-highlight-color:transparent;user-select:none}
     .chip:hover{color:var(--coral)}
     .chip.on{background:var(--coral);color:#fff;font-weight:700;box-shadow:0 4px 14px rgba(242,102,90,.36)}
 
-    .strength-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .strength-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--sub);text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
-    .strength-btn .s-label{font-size:11px;color:var(--muted);display:block;margin-top:2px;font-weight:400}
+    .strength-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .strength-btn{padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;color:var(--sub);text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+    .strength-btn .s-label{font-size:10px;color:var(--muted);display:block;margin-top:1px;font-weight:400}
     .strength-btn.on{border-color:var(--coral);background:var(--coral-pale);color:var(--coral)}
 
-    .textarea-wrap{background:var(--surface);border-radius:16px;box-shadow:0 2px 8px var(--shadow)}
-    textarea{width:100%;border:none;outline:none;border-radius:16px;padding:14px 16px;font-size:14px;font-family:inherit;resize:none;color:var(--text);background:transparent;line-height:1.65}
+    .textarea-wrap{background:var(--surface);border-radius:12px;box-shadow:0 2px 8px var(--shadow)}
+    textarea{width:100%;border:none;outline:none;border-radius:12px;padding:10px 14px;font-size:13px;font-family:inherit;resize:none;color:var(--text);background:transparent;line-height:1.55}
     textarea::placeholder{color:var(--muted)}
 
     .err{background:#FFF0EF;border-radius:12px;padding:12px 16px;font-size:13px;color:#C0392B;font-weight:500;margin-bottom:16px;line-height:1.5}
 
-    .btn-coral{width:100%;padding:17px;border-radius:100px;border:none;background:var(--coral);color:#fff;font-size:15.5px;font-weight:700;font-family:inherit;letter-spacing:.3px;cursor:pointer;box-shadow:0 6px 22px rgba(242,102,90,.38);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent}
+    .btn-coral{width:100%;padding:13px;border-radius:100px;border:none;background:var(--coral);color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;letter-spacing:.3px;cursor:pointer;box-shadow:0 5px 18px rgba(242,102,90,.38);transition:all .18s;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent}
     .btn-coral:hover:not(:disabled){background:var(--coral-dark);transform:translateY(-1px)}
     .btn-coral:active:not(:disabled){transform:scale(.975)}
     .btn-coral:disabled{opacity:.55;cursor:not-allowed;box-shadow:none;transform:none}
@@ -72,11 +73,11 @@
     @keyframes spin{to{transform:rotate(360deg)}}
 
     /* ── HOME tab ── */
-    .hero{padding:40px 0 28px;text-align:center}
-    .app-icon{width:72px;height:72px;background:var(--coral);border-radius:20px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:14px;box-shadow:0 10px 28px rgba(242,102,90,.3)}
-    .hero h1{font-size:22px;font-weight:900;letter-spacing:-.3px;margin-bottom:6px}
-    .hero p{font-size:13px;color:var(--sub);line-height:1.7}
-    .counter-badge{display:inline-flex;align-items:center;gap:5px;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;padding:5px 12px;border-radius:100px;margin-top:10px}
+    .hero{padding:14px 0 6px;text-align:center}
+    .app-icon{width:52px;height:52px;background:var(--coral);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:8px;box-shadow:0 8px 20px rgba(242,102,90,.3)}
+    .hero h1{font-size:18px;font-weight:900;letter-spacing:-.3px;margin-bottom:3px}
+    .hero p{font-size:12px;color:var(--sub);line-height:1.5}
+    .counter-badge{display:inline-flex;align-items:center;gap:5px;background:var(--coral-pale);color:var(--coral);font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;margin-top:6px}
 
     /* ── LOADING screen ── */
     .loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:0;padding:40px 20px}
@@ -174,6 +175,26 @@
     .result-advice strong{color:var(--coral);display:block;margin-bottom:6px;font-weight:800}
     .btn-retry-quiz{width:100%;margin-top:16px;padding:14px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .btn-retry-quiz:hover{border-color:var(--coral);color:var(--coral)}
+
+    /* ── Pop-in animation ── */
+    @keyframes popIn{
+      0%{transform:scale(0);opacity:0}
+      60%{transform:scale(1.2);opacity:1}
+      80%{transform:scale(0.92)}
+      100%{transform:scale(1)}
+    }
+    .chip{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
+    .chips .chip:nth-child(1){animation-delay:.00s}.chips .chip:nth-child(2){animation-delay:.04s}
+    .chips .chip:nth-child(3){animation-delay:.08s}.chips .chip:nth-child(4){animation-delay:.12s}
+    .chips .chip:nth-child(5){animation-delay:.16s}.chips .chip:nth-child(6){animation-delay:.20s}
+    .chips .chip:nth-child(7){animation-delay:.24s}.chips .chip:nth-child(8){animation-delay:.28s}
+    .chips .chip:nth-child(9){animation-delay:.32s}.chips .chip:nth-child(10){animation-delay:.36s}
+    .chips .chip:nth-child(11){animation-delay:.40s}.chips .chip:nth-child(12){animation-delay:.44s}
+    .strength-row .strength-btn{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
+    .strength-row .strength-btn:nth-child(1){animation-delay:.00s}
+    .strength-row .strength-btn:nth-child(2){animation-delay:.06s}
+    .strength-row .strength-btn:nth-child(3){animation-delay:.12s}
+    .q-opt{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
 
     /* ── Utility ── */
     .hidden{display:none!important}
@@ -299,13 +320,13 @@
     <div class="wrap">
       <div class="hero">
         <div class="app-icon">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <svg width="30" height="30" viewBox="0 0 40 40" fill="none">
             <path d="M6 8C6 5.79 7.79 4 10 4H30C32.21 4 34 5.79 34 8V24C34 26.21 32.21 28 30 28H22L14 36V28H10C7.79 28 6 26.21 6 24V8Z" fill="white" fill-opacity=".95"/>
             <path d="M13 16.5C13 16.5 15 13.5 20 16.5C25 19.5 27 16.5 27 16.5" stroke="#F2665A" stroke-width="2.5" stroke-linecap="round"/>
           </svg>
         </div>
         <h1>やんわりNO</h1>
-        <p>断るのが苦手な人へ。<br>状況を選ぶだけで、自然な断り文が完成。</p>
+        <p>状況を選ぶだけで自然な断り文が完成</p>
         <div class="counter-badge" id="counter-badge">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <span id="counter-text">0 回の断りをサポート</span>
@@ -352,11 +373,11 @@
 
       <div class="section">
         <div class="section-label">補足情報 <span style="font-weight:400;letter-spacing:0;text-transform:none">(任意)</span></div>
-        <div class="textarea-wrap"><textarea id="details" rows="2" placeholder="先週も断った、雰囲気を壊したくない、など"></textarea></div>
+        <div class="textarea-wrap"><textarea id="details" rows="1" placeholder="先週も断った、雰囲気を壊したくない、など"></textarea></div>
       </div>
 
       <div class="err hidden" id="err"></div>
-      <button class="btn-coral" id="btn-gen" onclick="generate()" style="margin-bottom:20px">
+      <button class="btn-coral" id="btn-gen" onclick="generate()" style="margin-bottom:12px">
         <span id="btn-label">断り文を生成する</span>
       </button>
       <div class="footer-note">made by <a href="https://twitter.com/ai_jikken10man" target="_blank">@ai_jikken10man</a></div>
@@ -803,7 +824,7 @@ function renderQuestion() {
   document.getElementById('q-num').textContent = `Q${currentQ + 1} / ${QUESTIONS.length}`;
   document.getElementById('q-text').textContent = q.q;
   document.getElementById('q-opts').innerHTML = q.opts.map((o, i) =>
-    `<button class="q-opt" onclick="answerQ(${i})">${o}</button>`
+    `<button class="q-opt" style="animation-delay:${i*0.07}s" onclick="answerQ(${i})">${o}</button>`
   ).join('');
 }
 
