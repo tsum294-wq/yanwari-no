@@ -132,22 +132,34 @@
     .step-panel.exiting{display:block!important;animation:slideOutLeft .18s cubic-bezier(.4,0,.2,1) both;pointer-events:none}
     @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
     @keyframes slideOutLeft{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-30px)}}
-    .step-header{padding:28px 20px 18px}
-    .step-back{display:inline-flex;align-items:center;gap:4px;padding:6px 12px 6px 8px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);margin-bottom:14px;-webkit-tap-highlight-color:transparent}
+    @keyframes floatIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .step-header{padding:24px 20px 16px}
+    .step-back{display:inline-flex;align-items:center;gap:4px;padding:6px 12px 6px 8px;border-radius:100px;border:none;background:var(--surface);color:var(--sub);font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);margin-bottom:12px;-webkit-tap-highlight-color:transparent}
     .step-back:hover{color:var(--coral)}
-    .step-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+    .step-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
     .step-q{font-size:21px;font-weight:900;line-height:1.3;letter-spacing:-.3px}
     .step-hint{font-size:12px;color:var(--sub);margin-top:5px}
-    .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px}
-    .step-opt{padding:16px 10px;border-radius:16px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:center;color:var(--text);transition:border-color .12s,background .12s,box-shadow .12s;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px var(--shadow);line-height:1.4}
-    .step-opt:active{transform:scale(.96)}
+    .step-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 20px}
+    .step-grid-1{grid-template-columns:1fr}
+    .step-opt{padding:13px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;color:var(--text);transition:border-color .12s,background .12s,box-shadow .12s;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px var(--shadow);line-height:1.4;display:flex;align-items:center;gap:9px}
+    .step-opt:active{transform:scale(.97)}
     .step-opt.on{background:var(--coral);color:#fff;border-color:var(--coral);box-shadow:0 4px 14px rgba(242,102,90,.36);font-weight:700}
-    .step-opt.full{grid-column:1/-1}
-    .opt-sub{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:3px}
+    .opt-ico{font-size:20px;flex-shrink:0;line-height:1}
+    .opt-txt{flex:1}
+    .opt-sub{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
     .step-body{padding:0 20px 20px}
-    .step-prog-wrap{padding:8px 20px 10px;background:var(--bg);flex-shrink:0}
-    .step-prog-track{height:5px;background:var(--border);border-radius:100px;overflow:hidden}
-    .step-prog-fill{height:100%;background:var(--coral);border-radius:100px;transition:width .45s cubic-bezier(.4,0,.2,1);width:25%}
+    /* ── Progress dot bar ── */
+    .step-prog-wrap{padding:10px 24px 12px;background:var(--bg);flex-shrink:0}
+    .spd-row{display:flex;align-items:center}
+    .spd-dot{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--muted);transition:all .3s cubic-bezier(.4,0,.2,1)}
+    .spd-dot.active{border-color:var(--coral);background:var(--coral);color:#fff;box-shadow:0 2px 10px rgba(242,102,90,.35)}
+    .spd-dot.done{border-color:var(--coral);background:var(--coral);color:#fff}
+    .spd-line{flex:1;height:2px;background:var(--border);margin:0 4px;overflow:hidden;border-radius:2px}
+    .spd-line-fill{height:100%;background:var(--coral);width:0;transition:width .45s cubic-bezier(.4,0,.2,1);border-radius:2px}
+    .spd-labels{display:flex;margin-top:5px}
+    .spd-labels span{font-size:10px;color:var(--muted);font-weight:600;text-align:center;transition:color .3s}
+    .spd-labels span.active{color:var(--coral)}
+    .spd-lbl-gap{flex:1}
 
     /* ── HISTORY tab ── */
     .history-item{background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 2px 10px var(--shadow);display:flex;align-items:flex-start;gap:12px}
@@ -203,25 +215,8 @@
     .btn-retry-quiz{width:100%;margin-top:16px;padding:14px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .btn-retry-quiz:hover{border-color:var(--coral);color:var(--coral)}
 
-    /* ── Pop-in animation ── */
-    @keyframes popIn{
-      0%{transform:scale(0);opacity:0}
-      60%{transform:scale(1.2);opacity:1}
-      80%{transform:scale(0.92)}
-      100%{transform:scale(1)}
-    }
-    .chip{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
-    .chips .chip:nth-child(1){animation-delay:.00s}.chips .chip:nth-child(2){animation-delay:.04s}
-    .chips .chip:nth-child(3){animation-delay:.08s}.chips .chip:nth-child(4){animation-delay:.12s}
-    .chips .chip:nth-child(5){animation-delay:.16s}.chips .chip:nth-child(6){animation-delay:.20s}
-    .chips .chip:nth-child(7){animation-delay:.24s}.chips .chip:nth-child(8){animation-delay:.28s}
-    .chips .chip:nth-child(9){animation-delay:.32s}.chips .chip:nth-child(10){animation-delay:.36s}
-    .chips .chip:nth-child(11){animation-delay:.40s}.chips .chip:nth-child(12){animation-delay:.44s}
-    .strength-row .strength-btn{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
-    .strength-row .strength-btn:nth-child(1){animation-delay:.00s}
-    .strength-row .strength-btn:nth-child(2){animation-delay:.06s}
-    .strength-row .strength-btn:nth-child(3){animation-delay:.12s}
-    .q-opt{animation:popIn .22s cubic-bezier(.34,1.56,.64,1) both}
+    /* ── Float-in animation for quiz ── */
+    .q-opt{animation:floatIn .3s cubic-bezier(.25,.46,.45,.94) both}
 
     /* ── Utility ── */
     .hidden{display:none!important}
@@ -352,18 +347,18 @@
         <div class="step-q">断りたいシチュエーションは？</div>
       </div>
       <div class="step-grid" id="sgrid-1">
-        <button class="step-opt" data-v="nomikai"  onclick="pickSituation(this)">飲み会・食事会</button>
-        <button class="step-opt" data-v="goukon"   onclick="pickSituation(this)">合コン・デート</button>
-        <button class="step-opt" data-v="shift"    onclick="pickSituation(this)">バイトシフト交代</button>
-        <button class="step-opt" data-v="nijikai"  onclick="pickSituation(this)">2次会・3次会</button>
-        <button class="step-opt" data-v="event"    onclick="pickSituation(this)">イベント・勉強会</button>
-        <button class="step-opt" data-v="date"     onclick="pickSituation(this)">個人的なお出かけ</button>
-        <button class="step-opt" data-v="kokuhaku" onclick="pickSituation(this)">告白への返事</button>
-        <button class="step-opt" data-v="work"     onclick="pickSituation(this)">仕事・依頼の断り</button>
-        <button class="step-opt" data-v="kanyu"    onclick="pickSituation(this)">勧誘・セールス断り</button>
-        <button class="step-opt" data-v="okane"    onclick="pickSituation(this)">お金の貸し借り断り</button>
-        <button class="step-opt" data-v="line"     onclick="pickSituation(this)">LINEグループ招待断り</button>
-        <button class="step-opt" data-v="other"    onclick="pickSituation(this)">その他</button>
+        <button class="step-opt" data-v="nomikai"  onclick="pickSituation(this)"><span class="opt-ico">🍺</span><span class="opt-txt">飲み会・食事会</span></button>
+        <button class="step-opt" data-v="goukon"   onclick="pickSituation(this)"><span class="opt-ico">💝</span><span class="opt-txt">合コン・デート</span></button>
+        <button class="step-opt" data-v="shift"    onclick="pickSituation(this)"><span class="opt-ico">📋</span><span class="opt-txt">バイトシフト交代</span></button>
+        <button class="step-opt" data-v="nijikai"  onclick="pickSituation(this)"><span class="opt-ico">🌙</span><span class="opt-txt">2次会・3次会</span></button>
+        <button class="step-opt" data-v="event"    onclick="pickSituation(this)"><span class="opt-ico">📣</span><span class="opt-txt">イベント・勉強会</span></button>
+        <button class="step-opt" data-v="date"     onclick="pickSituation(this)"><span class="opt-ico">🚶</span><span class="opt-txt">個人的なお出かけ</span></button>
+        <button class="step-opt" data-v="kokuhaku" onclick="pickSituation(this)"><span class="opt-ico">💌</span><span class="opt-txt">告白への返事</span></button>
+        <button class="step-opt" data-v="work"     onclick="pickSituation(this)"><span class="opt-ico">💼</span><span class="opt-txt">仕事・依頼の断り</span></button>
+        <button class="step-opt" data-v="kanyu"    onclick="pickSituation(this)"><span class="opt-ico">📢</span><span class="opt-txt">勧誘・セールス断り</span></button>
+        <button class="step-opt" data-v="okane"    onclick="pickSituation(this)"><span class="opt-ico">💴</span><span class="opt-txt">お金の貸し借り断り</span></button>
+        <button class="step-opt" data-v="line"     onclick="pickSituation(this)"><span class="opt-ico">💬</span><span class="opt-txt">LINEグループ招待断り</span></button>
+        <button class="step-opt" data-v="other"    onclick="pickSituation(this)"><span class="opt-ico">✨</span><span class="opt-txt">その他</span></button>
       </div>
     </div>
 
@@ -375,11 +370,11 @@
         <div class="step-q">相手との関係は？</div>
       </div>
       <div class="step-grid" id="sgrid-2">
-        <button class="step-opt" data-v="friend"       onclick="pickRelationship(this)">友達・同期</button>
-        <button class="step-opt" data-v="senpai"       onclick="pickRelationship(this)">先輩・上司</button>
-        <button class="step-opt" data-v="kouhai"       onclick="pickRelationship(this)">後輩・部下</button>
-        <button class="step-opt" data-v="acquaintance" onclick="pickRelationship(this)">あまり親しくない人</button>
-        <button class="step-opt full" data-v="other"   onclick="pickRelationship(this)">その他</button>
+        <button class="step-opt" data-v="friend"       onclick="pickRelationship(this)"><span class="opt-ico">👯</span><span class="opt-txt">友達・同期</span></button>
+        <button class="step-opt" data-v="senpai"       onclick="pickRelationship(this)"><span class="opt-ico">🎓</span><span class="opt-txt">先輩・上司</span></button>
+        <button class="step-opt" data-v="kouhai"       onclick="pickRelationship(this)"><span class="opt-ico">🌱</span><span class="opt-txt">後輩・部下</span></button>
+        <button class="step-opt" data-v="acquaintance" onclick="pickRelationship(this)"><span class="opt-ico">🤝</span><span class="opt-txt">あまり親しくない人</span></button>
+        <button class="step-opt full" data-v="other"   onclick="pickRelationship(this)"><span class="opt-ico">✨</span><span class="opt-txt">その他</span></button>
       </div>
     </div>
 
@@ -390,10 +385,10 @@
         <div class="step-lbl">STEP 3 / 4</div>
         <div class="step-q">断りの強さは？</div>
       </div>
-      <div class="step-grid" id="sgrid-3">
-        <button class="step-opt" data-s="1" onclick="pickStrengthStep(this)">やんわり<span class="opt-sub">遠回しに</span></button>
-        <button class="step-opt" data-s="2" onclick="pickStrengthStep(this)">ふつう<span class="opt-sub">バランスよく</span></button>
-        <button class="step-opt full" data-s="3" onclick="pickStrengthStep(this)">はっきり<span class="opt-sub">明確に断る</span></button>
+      <div class="step-grid step-grid-1" id="sgrid-3">
+        <button class="step-opt" data-s="1" onclick="pickStrengthStep(this)"><span class="opt-ico">🌸</span><span class="opt-txt">やんわり<span class="opt-sub">遠回しに、やさしく</span></span></button>
+        <button class="step-opt" data-s="2" onclick="pickStrengthStep(this)"><span class="opt-ico">⚖️</span><span class="opt-txt">ふつう<span class="opt-sub">バランスよく自然に</span></span></button>
+        <button class="step-opt" data-s="3" onclick="pickStrengthStep(this)"><span class="opt-ico">⚡</span><span class="opt-txt">はっきり<span class="opt-sub">明確に、きっぱりと</span></span></button>
       </div>
     </div>
 
@@ -468,7 +463,24 @@
 
 <!-- Tab bar is a flex-child of #s-main — physically below the scroll area, cannot move -->
 <div class="step-prog-wrap" id="step-prog-wrap">
-  <div class="step-prog-track"><div class="step-prog-fill" id="step-prog-fill"></div></div>
+  <div class="spd-row">
+    <div class="spd-dot active" id="spd1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+    <div class="spd-line"><div class="spd-line-fill" id="spdl1"></div></div>
+    <div class="spd-dot" id="spd2"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+    <div class="spd-line"><div class="spd-line-fill" id="spdl2"></div></div>
+    <div class="spd-dot" id="spd3"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+    <div class="spd-line"><div class="spd-line-fill" id="spdl3"></div></div>
+    <div class="spd-dot" id="spd4"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+  </div>
+  <div class="spd-labels">
+    <span id="spdlbl1" class="active">状況</span>
+    <div class="spd-lbl-gap"></div>
+    <span id="spdlbl2">関係</span>
+    <div class="spd-lbl-gap"></div>
+    <span id="spdlbl3">強さ</span>
+    <div class="spd-lbl-gap"></div>
+    <span id="spdlbl4">補足</span>
+  </div>
 </div>
 <nav class="tab-bar" id="tab-bar">
   <button class="tab-btn active" id="tbtn-home" onclick="switchTab('home')">
@@ -574,7 +586,7 @@ function triggerStepAnim(panel) {
   panel.querySelectorAll('.step-opt').forEach((el, i) => {
     el.style.animation = 'none';
     void el.offsetWidth;
-    el.style.animation = `popIn .22s cubic-bezier(.34,1.56,.64,1) ${i * 0.06}s both`;
+    el.style.animation = `floatIn .3s cubic-bezier(.25,.46,.45,.94) ${i * 0.055}s both`;
   });
 }
 function restoreStepSelection(n) {
@@ -589,9 +601,27 @@ function restoreStepSelection(n) {
       o.classList.toggle('on', parseInt(o.dataset.s) === sel.strength));
   }
 }
+const SPD_ICONS = [
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`,
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+];
+const CHECK_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
 function updateStepProgress() {
-  const el = document.getElementById('step-prog-fill');
-  if (el) el.style.width = (currentStep / 4 * 100) + '%';
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('spd' + i);
+    const lbl = document.getElementById('spdlbl' + i);
+    if (!dot) continue;
+    dot.classList.remove('active', 'done');
+    if (i < currentStep) { dot.classList.add('done'); dot.innerHTML = CHECK_ICON; }
+    else { dot.classList.toggle('active', i === currentStep); dot.innerHTML = SPD_ICONS[i-1]; }
+    if (lbl) lbl.classList.toggle('active', i === currentStep);
+  }
+  for (let i = 1; i <= 3; i++) {
+    const fill = document.getElementById('spdl' + i);
+    if (fill) fill.style.width = i < currentStep ? '100%' : '0%';
+  }
 }
 function pickSituation(el) {
   document.querySelectorAll('#step-1 .step-opt').forEach(o => o.classList.remove('on'));
@@ -908,7 +938,7 @@ function renderQuestion() {
   document.getElementById('q-num').textContent = `Q${currentQ + 1} / ${QUESTIONS.length}`;
   document.getElementById('q-text').textContent = q.q;
   document.getElementById('q-opts').innerHTML = q.opts.map((o, i) =>
-    `<button class="q-opt" style="animation-delay:${i*0.07}s" onclick="answerQ(${i})">${o}</button>`
+    `<button class="q-opt" style="animation-delay:${i*0.06}s" onclick="answerQ(${i})">${o}</button>`
   ).join('');
 }
 
