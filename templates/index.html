@@ -150,7 +150,7 @@
     .opt-sub{font-size:11px;font-weight:400;opacity:.8;display:block;margin-top:2px}
     .step-body{padding:0 20px 20px}
     /* ── App header ── */
-    .app-header{height:44px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;flex-shrink:0}
+    .app-header{height:44px;background:var(--bg);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0 20px;flex-shrink:0}
     .app-header-inner{display:flex;align-items:center;gap:8px}
     .app-logo-icon{width:26px;height:26px;background:var(--coral);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .app-header-name{font-size:16px;font-weight:900;letter-spacing:-.3px;color:var(--text)}
@@ -161,8 +161,8 @@
     .spbar-track{position:relative;height:3px;background:var(--border);border-radius:100px;overflow:visible}
     .spbar-fill{position:absolute;left:0;top:0;height:100%;background:var(--coral);border-radius:100px;transition:width .35s cubic-bezier(.4,0,.2,1)}
     .spbar-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;background:#fff;border:2.5px solid var(--coral);border-radius:50%;box-shadow:0 1px 6px rgba(242,102,90,.3);transition:left .35s cubic-bezier(.4,0,.2,1)}
-    .spbar-labels{display:flex;justify-content:space-between}
-    .spbar-labels span{font-size:10px;color:var(--muted);font-weight:600;transition:color .3s}
+    .spbar-labels{display:grid;grid-template-columns:repeat(4,1fr)}
+    .spbar-labels span{font-size:10px;color:var(--muted);font-weight:600;transition:color .3s;text-align:center}
     .spbar-labels span.active{color:var(--coral)}
 
     /* ── HISTORY tab ── */
