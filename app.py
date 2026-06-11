@@ -1,6 +1,9 @@
 import traceback
 import json
+import threading
 import urllib.request
+from collections import defaultdict
+from datetime import date
 from flask import Flask, request, jsonify, render_template
 import anthropic
 import os
@@ -30,6 +33,41 @@ def _redis(path):
             return json.loads(r.read()).get("result")
     except Exception:
         return None
+
+# ── 簡易レート制限（インメモリ・日次リセット）────────────────────────
+# 悪用やバズによる高額請求を防ぐヒューズ。gunicorn単一ワーカー前提。
+RATE_LIMIT_PER_IP_PER_DAY = 30    # 1IPあたり1日の生成回数
+RATE_LIMIT_GLOBAL_PER_DAY = 500   # サイト全体の1日の生成回数
+
+_rate_lock = threading.Lock()
+_rate_day = date.today()
+_rate_by_ip = defaultdict(int)
+_rate_global = 0
+
+def _client_ip() -> str:
+    fwd = request.headers.get("X-Forwarded-For", "")
+    return fwd.split(",")[0].strip() if fwd else (request.remote_addr or "unknown")
+
+def _check_rate_limit():
+    """上限超過なら (jsonレスポンスdict, ステータス) を返す。OKなら None。"""
+    global _rate_day, _rate_by_ip, _rate_global
+    with _rate_lock:
+        today = date.today()
+        if today != _rate_day:
+            _rate_day = today
+            _rate_by_ip = defaultdict(int)
+            _rate_global = 0
+        if _rate_global >= RATE_LIMIT_GLOBAL_PER_DAY:
+            return {"success": False, "error": "本日の生成上限に達しました。また明日お試しください。",
+                    "error_type": "rate_limit"}, 429
+        ip = _client_ip()
+        if _rate_by_ip[ip] >= RATE_LIMIT_PER_IP_PER_DAY:
+            return {"success": False, "error": "1日の利用上限に達しました。また明日お試しください。",
+                    "error_type": "rate_limit"}, 429
+        _rate_by_ip[ip] += 1
+        _rate_global += 1
+    return None
+
 
 SITUATION_MAP = {
     "nomikai":     "飲み会・食事会への誘い",
@@ -109,6 +147,10 @@ def generate_followup():
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return jsonify({"success": False, "error": "ANTHROPIC_API_KEY が設定されていません", "error_type": "no_key"}), 400
 
+    limited = _check_rate_limit()
+    if limited:
+        return jsonify(limited[0]), limited[1]
+
     data = request.json or {}
     situation    = SITUATION_MAP.get(data.get("situation", ""), data.get("situation", ""))
     relationship = RELATIONSHIP_MAP.get(data.get("relationship", ""), data.get("relationship", ""))
@@ -137,7 +179,7 @@ def generate_followup():
     try:
         client = anthropic.Anthropic()
         message = client.messages.create(
-            model="claude-opus-4-7",
+            model="claude-haiku-4-5",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}],
         )
@@ -157,6 +199,10 @@ def generate():
             "error_type": "no_key",
         }), 400
 
+    limited = _check_rate_limit()
+    if limited:
+        return jsonify(limited[0]), limited[1]
+
     data = request.json or {}
     situation     = SITUATION_MAP.get(data.get("situation", ""), data.get("situation", ""))
     relationship  = RELATIONSHIP_MAP.get(data.get("relationship", ""), data.get("relationship", ""))
@@ -172,7 +218,7 @@ def generate():
     try:
         client = anthropic.Anthropic()
         message = client.messages.create(
-            model="claude-opus-4-7",
+            model="claude-haiku-4-5",
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
