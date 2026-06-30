@@ -235,6 +235,24 @@
     .q-opt{padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;text-align:left;color:var(--text);box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
     .q-opt:hover{border-color:var(--coral);color:var(--coral)}
     .q-opt.selected{border-color:var(--coral);background:var(--coral-pale);color:var(--coral);font-weight:700}
+    /* 5段階スケール（MBTI風 そう思う⇔思わない） */
+    .q-scale{margin-top:32px}
+    .q-likert{display:flex;align-items:center;justify-content:center;gap:13px}
+    .q-scale-end{font-size:12px;font-weight:800;white-space:nowrap}
+    .q-scale-end.agree{color:#10B981}
+    .q-scale-end.disagree{color:#7C3AED}
+    .q-dot{border-radius:50%;border:2.5px solid;background:var(--surface);cursor:pointer;padding:0;flex-shrink:0;transition:transform .12s,background .12s;-webkit-tap-highlight-color:transparent}
+    .q-dot:active{transform:scale(.85)}
+    .q-dot.d0{width:54px;height:54px;border-color:#10B981}
+    .q-dot.d1{width:43px;height:43px;border-color:#5FD9A6}
+    .q-dot.d2{width:34px;height:34px;border-color:#C4C4CC}
+    .q-dot.d3{width:43px;height:43px;border-color:#B79CF2}
+    .q-dot.d4{width:54px;height:54px;border-color:#7C3AED}
+    .q-dot.d0:hover,.q-dot.d1:hover{background:#10B98122}
+    .q-dot.d3:hover,.q-dot.d4:hover{background:#7C3AED1f}
+    .q-dot.sel.d0,.q-dot.sel.d1{background:#10B981;border-color:#10B981}
+    .q-dot.sel.d3,.q-dot.sel.d4{background:#7C3AED;border-color:#7C3AED}
+    .q-dot.sel.d2{background:#C4C4CC}
     .q-back{display:flex;align-items:center;gap:5px;padding:0;border:none;background:none;color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-bottom:14px}
     .q-back:active{opacity:.5}
     .btn-type-list{width:100%;margin-top:10px;padding:13px;border-radius:100px;border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--sub);box-shadow:0 2px 8px var(--shadow);transition:all .15s;-webkit-tap-highlight-color:transparent}
@@ -1101,36 +1119,29 @@ function copyLib(i) {
 // Each question: opts[0] → letters[0], opts[1] → letters[1]
 // Dimensions: W/K(感情/論理)  F/R(理想/現実)  T/A(気遣い/自分軸)  P/S(慎重/即決)
 // 12 questions × 4 options. opts[0,1] → lets[0];  opts[2,3] → lets[1]
+// 各設問は lets[0] の極を主張する文。5段階の「そう思う」側ほど lets[0]、「思わない」側ほど lets[1] に加点。
 const Q_PAIRS = [
-  // W/K axis (3 questions)
-  { lets:['W','K'], q:'断った後、相手のことが気になる？',
-    opts:['気になりすぎて何度もトーク画面を見てしまう','少し気になるけど、まあ大丈夫だと思う','気になるけど、切り替えは早い方だ','まったく気にしない。伝えたのだから相手次第'] },
-  { lets:['K','W'], q:'断ることへの正直な気持ちは？',
-    opts:['断ることは普通のこと。罪悪感はゼロに近い','あまり罪悪感はないが少しは気になる','毎回なんか申し訳ないなと思う','断るたびに「嫌われたかも」と不安になる'] },
-  { lets:['W','K'], q:'断り文を送った後の気分は？',
-    opts:['モヤモヤが続いて、ちゃんと伝わったか不安になる','少し心配だが、概ね大丈夫と思える','送ったら気持ちは切り替えられる方だ','送ったら忘れる。気にしない'] },
-  // F/R axis (3 questions)
-  { lets:['F','R'], q:'断るときに一番頭にあることは？',
-    opts:['この一言でこれからの関係がどう変わるか','先のことも気になるが今の状況も大事','今の場面での相手の気持ちを最優先に考える','今この瞬間、どう伝えるかだけ考える'] },
-  { lets:['R','F'], q:'断りたい主な理由は？',
-    opts:['単純に今行きたくないから','今は無理だけど次は行けるかも','この人と付き合い続けるのが難しいかもと感じる','この先の関係を考えると、ここで断るのが正解だと思う'] },
-  { lets:['F','R'], q:'断り文を作るとき、どんな視点で考える？',
-    opts:['「この断り方で将来の関係はどうなるか」を最優先に','先のことも念頭に置きつつ今の場面も大事にする','今この状況で何を伝えるべきかを重視する','先のことより今の相手への伝え方だけを考える'] },
-  // T/A axis (3 questions)
-  { lets:['T','A'], q:'断り文を考えるとき、意識することは？',
-    opts:['相手がどう感じるかを一番に考える','相手の気持ちを大切にしつつ自分の意思も伝える','自分の意思を正確に伝えることが大切だと思う','相手より自分が正直に伝えることが最優先'] },
-  { lets:['A','T'], q:'断った後のフォローは？',
-    opts:['フォローは基本しない。伝えることは伝えた','気になることはあるが、フォローは最低限','相手が心配で、少し後で確認メッセージを送ることが多い','気になってフォローのLINEを何度も送ってしまうことがある'] },
-  { lets:['T','A'], q:'断るとき、一番大切にしていることは？',
-    opts:['相手に嫌な思いをさせないこと','相手の気持ちを大切にしながら自分の意思も伝える','自分の気持ちを正直に伝えること','相手への配慮より自分の本音を伝えることが大事'] },
-  // P/S axis (3 questions)
-  { lets:['P','S'], q:'断るときの言い方は？',
-    opts:['「どうかな…」「ちょっと考えさせて」と返事を保留することが多い','「難しいかも」くらいには言うが、はっきりは言いにくい','「行けないと思います」くらいはっきり伝える方だ','「無理です」とすぐはっきり言える。迷いない'] },
-  { lets:['S','P'], q:'断りの理由をどう伝える？',
-    opts:['明確な理由をそのまま伝える。ぼかすより正直な方がいい','ある程度は理由を伝えるが、全部は説明しない','なんとなく「都合が…」くらいでぼかす方だ','理由はほとんど言わない。「ちょっと…」でOKだと思う'] },
-  { lets:['P','S'], q:'断りの返事を送るタイミングは？',
-    opts:['すぐには返さない。何日か置いてから返すことが多い','少し考えてから、文章を練り直して送る','考えたらすぐ送る。長く悩まない','すぐ即答する。考えるより送っちゃう方が楽'] },
+  // W/K（感情/論理）
+  { lets:['W','K'], q:'断った後も、相手のことが気になって何度も考えてしまう。' },
+  { lets:['K','W'], q:'断ることに罪悪感はほとんどない。' },
+  { lets:['W','K'], q:'断り文を送った後、ちゃんと伝わったかモヤモヤしがちだ。' },
+  // F/R（理想/現実）
+  { lets:['F','R'], q:'断るときは、この先の関係がどうなるかを一番に考える。' },
+  { lets:['R','F'], q:'断る理由は「今は無理」など、今の都合であることが多い。' },
+  { lets:['F','R'], q:'断り方ひとつで、将来の関係は変わると思う。' },
+  // T/A（気遣い/自分軸）
+  { lets:['T','A'], q:'断るときは、まず相手がどう感じるかを優先して考える。' },
+  { lets:['A','T'], q:'断った後のフォローは基本しない。伝えたら伝えたまでだ。' },
+  { lets:['T','A'], q:'相手に嫌な思いをさせないことを一番大切にしている。' },
+  // P/S（慎重/即決）
+  { lets:['P','S'], q:'はっきり断れず「ちょっと考えさせて」と保留しがちだ。' },
+  { lets:['S','P'], q:'断りの返事は、考えるよりすぐ送ってしまう方だ。' },
+  { lets:['P','S'], q:'断りの返事は何日か置いて、文章を練ってから送る。' },
 ];
+
+// 5段階 → 加点（idx0=とてもそう思う 〜 idx4=まったく思わない）
+// [極のインデックス(0=lets[0], 1=lets[1]), 重み]。idx2(どちらでもない)は加点なし。
+const _SCALE = [[0,2],[0,1],null,[1,1],[1,2]];
 
 const _DIM_NAMES = {W:'感情',K:'論理',F:'理想',R:'現実',T:'気遣い',A:'自分軸',P:'慎重',S:'即決'};
 const _DIM_PAIRS = [['W','K'],['F','R'],['T','A'],['P','S']];
@@ -1225,37 +1236,47 @@ function renderQuestion(prevIdx) {
   // Clear first → rAF ensures fresh paint, preventing color persistence from previous question
   const optsEl = document.getElementById('q-opts');
   optsEl.innerHTML = '';
+  const labels = ['とてもそう思う','そう思う','どちらでもない','あまり思わない','まったく思わない'];
   requestAnimationFrame(() => {
-    optsEl.innerHTML = qp.opts.map((o, i) =>
-      `<button class="q-opt q-opt-2${prevIdx === i ? ' selected' : ''}" style="animation-delay:${i*0.09}s" onclick="answerQ(${i},this)">${o}</button>`
-    ).join('');
+    optsEl.innerHTML = `
+      <div class="q-scale">
+        <div class="q-likert">
+          <span class="q-scale-end agree">そう思う</span>
+          ${[0,1,2,3,4].map(i =>
+            `<button class="q-dot d${i}${prevIdx === i ? ' sel' : ''}" onclick="answerQ(${i},this)" aria-label="${labels[i]}"></button>`
+          ).join('')}
+          <span class="q-scale-end disagree">思わない</span>
+        </div>
+      </div>`;
   });
 }
 
 function answerQ(idx, el) {
   if (quizLocked) return;
   quizLocked = true;
-  document.querySelectorAll('#q-opts .q-opt').forEach(b => {
+  document.querySelectorAll('#q-opts .q-dot').forEach(b => {
     b.disabled = true; b.style.pointerEvents = 'none';
   });
-  el.classList.add('selected');
-  const dimIdx = idx < 2 ? 0 : 1;
-  const dimLetter = Q_PAIRS[currentQ].lets[dimIdx];
-  _qAns[dimLetter]++;
-  quizAnswers.push(dimLetter);
-  quizHistory.push({optIdx: idx, dimLetter});
+  el.classList.add('sel');
+  const s = _SCALE[idx];
+  let applied = null;
+  if (s) {
+    const letter = Q_PAIRS[currentQ].lets[s[0]];
+    _qAns[letter] += s[1];
+    applied = { letter, w: s[1] };
+  }
+  quizHistory.push({ optIdx: idx, applied });
   currentQ++;
   setTimeout(() => {
     if (currentQ < Q_PAIRS.length) renderQuestion();
     else showQuizResult();
-  }, 340);
+  }, 300);
 }
 
 function goBackQuiz() {
   if (currentQ === 0 || quizHistory.length === 0) return;
   const prev = quizHistory.pop();
-  _qAns[prev.dimLetter]--;
-  quizAnswers.pop();
+  if (prev.applied) _qAns[prev.applied.letter] -= prev.applied.w;
   currentQ--;
   renderQuestion(prev.optIdx);
 }
