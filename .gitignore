@@ -7,3 +7,11 @@ venv/
 .venv/
 dist/
 *.egg-info/
+
+# local-only assets & tools (not for deploy)
+login_*.txt
+mockups.html
+type_preview.html
+generate_chars.py
+static/images/grid*.png
+static/images/_split_grids.py

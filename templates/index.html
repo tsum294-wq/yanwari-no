@@ -1292,7 +1292,7 @@ function showQuizResult() {
   }).join('');
   document.querySelector('#quiz-result .quiz-result-wrap').innerHTML = `
     <div class="qr-hero">
-      <div class="qr-char-art">${charSvg}</div>
+      <div class="qr-char-art"><img src="/static/images/${code}.png" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
       <div class="qr-hero-info">
         <div class="qr-type-label">あなたの断り方タイプ</div>
         <div class="qr-code" style="color:${t.color}">${code}</div>
@@ -1330,7 +1330,7 @@ function showTypeList() {
   const grid = document.getElementById('type-list-grid');
   grid.innerHTML = Object.entries(QUIZ_TYPES).map(([code, t]) => `
     <div class="type-card" style="background:${t.bg}">
-      <div class="type-card-art">${_charSvg(t.grp, t.color, t.bg)}</div>
+      <div class="type-card-art"><img src="/static/images/${code}.png" alt="${t.name}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
       <div class="type-card-code" style="color:${t.color}">${code}</div>
       <div class="type-card-name">${t.name}</div>
       <span class="type-card-tag" style="color:${t.color}">${t.tag}</span>
