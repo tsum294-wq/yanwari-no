@@ -3,7 +3,8 @@ import json
 import threading
 import urllib.request
 from collections import defaultdict
-from datetime import date
+import time
+from datetime import date, datetime
 from flask import Flask, request, jsonify, render_template
 import anthropic
 import os
@@ -18,7 +19,10 @@ except ImportError:
 app = Flask(__name__)
 
 _COUNTER_KEY = "yanwari_total"
-_COUNTER_BASE = 2384  # 表示上の下駄。実カウントに加算し、実生成(incr)のたびにここから増える
+_COUNTER_BASE = 2384                                # 表示の起点（下駄）
+_COUNTER_EPOCH = datetime(2026, 7, 1).timestamp()   # 時間ベース自動増加の起点
+_COUNTER_RATE_SEC = 1800                            # この秒数ごとに+1（約48/日・常に増え続ける）
+_real_session = 0                                   # 実生成の一時カウント（インスタンス内・ベストエフォート）
 
 def _redis(path):
     url   = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
@@ -130,9 +134,9 @@ def index():
 
 @app.route("/count")
 def count():
-    val = _redis(f"get/{_COUNTER_KEY}")
-    real = int(val) if val else 0
-    return jsonify({"count": _COUNTER_BASE + real})
+    elapsed = max(0, time.time() - _COUNTER_EPOCH)
+    grown = int(elapsed / _COUNTER_RATE_SEC)
+    return jsonify({"count": _COUNTER_BASE + grown + _real_session})
 
 
 @app.route("/health")
@@ -224,7 +228,9 @@ def generate():
             max_tokens=1500,
             messages=[{"role": "user", "content": prompt}],
         )
-        _redis(f"incr/{_COUNTER_KEY}")
+        global _real_session
+        _real_session += 1
+        _redis(f"incr/{_COUNTER_KEY}")  # Upstash設定時のみ有効（将来用の永続化）
         return jsonify({"success": True, "result": message.content[0].text})
     except anthropic.AuthenticationError:
         return jsonify({
