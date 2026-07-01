@@ -13,5 +13,6 @@ login_*.txt
 mockups.html
 type_preview.html
 generate_chars.py
+gen_og_cards.py
 static/images/grid*.png
 static/images/_split_grids.py

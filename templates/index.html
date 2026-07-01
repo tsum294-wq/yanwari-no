@@ -1381,8 +1381,9 @@ function showQuizResult() {
 
 function shareQuizResult(code) {
   const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
-  const txt = `私のやんわりNO断りタイプ診断結果は「${code} (${t.name})」でした！あなたも診断してみよう！\nhttps://yanwari-no.onrender.com\n#やんわりNO #断り上手診断`;
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt), '_blank');
+  const url = `https://yanwari-no.onrender.com/r/${code}`;
+  const txt = `私の断り方タイプは「${t.name}」でした！\nあなたは何タイプ？断り上手診断やってみて→\n\n#やんわりNO #断り上手診断`;
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(txt) + '&url=' + encodeURIComponent(url), '_blank');
 }
 
 function retryQuiz() {

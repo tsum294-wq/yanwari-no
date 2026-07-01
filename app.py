@@ -5,7 +5,7 @@ import urllib.request
 from collections import defaultdict
 import time
 from datetime import date, datetime
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect
 import anthropic
 import os
 
@@ -23,6 +23,11 @@ _COUNTER_BASE = 2384                                # 表示の起点（下駄�
 _COUNTER_EPOCH = datetime(2026, 7, 1).timestamp()   # 時間ベース自動増加の起点
 _COUNTER_RATE_SEC = 1800                            # この秒数ごとに+1（約48/日・常に増え続ける）
 _real_session = 0                                   # 実生成の一時カウント（インスタンス内・ベストエフォート）
+
+# 診断タイプ定義（結果シェアページ用）
+SITE_BASE = "https://yanwari-no.onrender.com"
+with open(os.path.join(os.path.dirname(__file__), "types.json"), encoding="utf-8") as _tf:
+    TYPES = json.load(_tf)
 
 def _redis(path):
     url   = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
@@ -137,6 +142,22 @@ def count():
     elapsed = max(0, time.time() - _COUNTER_EPOCH)
     grown = int(elapsed / _COUNTER_RATE_SEC)
     return jsonify({"count": _COUNTER_BASE + grown + _real_session})
+
+
+@app.route("/r/<code>")
+def result_share(code):
+    """診断結果のシェア用ランディング（タイプ別OGPカードつき）。"""
+    code = (code or "").upper()
+    t = TYPES.get(code)
+    if not t:
+        return redirect("/")
+    return render_template(
+        "result.html",
+        code=code, name=t["name"], tag=t["tag"], color=t["color"], bg=t["bg"],
+        char_img=f"/static/images/{code}.png",
+        og_image=f"{SITE_BASE}/static/images/og/{code}.png",
+        og_url=f"{SITE_BASE}/r/{code}",
+    )
 
 
 @app.route("/health")

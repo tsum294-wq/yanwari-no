@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>私の断り方タイプは「{{ name }}」｜やんわりNO 断り上手診断</title>
+<!-- OGP / Twitterカード -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="私の断り方タイプは「{{ name }}」でした｜断り上手診断"/>
+<meta property="og:description" content="{{ tag }}。あなたの断り方タイプは？16タイプ＋相性つきの無料診断。"/>
+<meta property="og:image" content="{{ og_image }}"/>
+<meta property="og:url" content="{{ og_url }}"/>
+<meta property="og:site_name" content="やんわりNO"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="私の断り方タイプは「{{ name }}」でした｜断り上手診断"/>
+<meta name="twitter:description" content="{{ tag }}。あなたの断り方タイプは？16タイプ＋相性つきの無料診断。"/>
+<meta name="twitter:image" content="{{ og_image }}"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet"/>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{min-height:100vh;background:linear-gradient(160deg,{{ bg }} 0%,#ffffff 60%);
+    font-family:'Noto Sans JP','Hiragino Sans',sans-serif;color:#1a1a1a;
+    display:flex;align-items:center;justify-content:center;padding:32px 20px}
+  .wrap{width:100%;max-width:380px;text-align:center}
+  .badge{display:inline-block;font-size:12px;font-weight:900;color:{{ color }};
+    background:#fff;border:2px solid {{ color }};padding:5px 16px;border-radius:100px;margin-bottom:20px}
+  .art{width:min(70vw,240px);aspect-ratio:1;margin:0 auto 18px;border-radius:24px;overflow:hidden;
+    box-shadow:0 14px 40px rgba(0,0,0,.12);background:#fff}
+  .art img{width:100%;height:100%;object-fit:cover;display:block}
+  .lead{font-size:14px;font-weight:700;color:#666}
+  .name{font-size:34px;font-weight:900;margin:4px 0 6px;letter-spacing:-.5px}
+  .code{font-size:16px;font-weight:900;color:{{ color }};letter-spacing:3px}
+  .tag{display:inline-block;font-size:13px;font-weight:700;color:{{ color }};
+    background:{{ bg }};border-radius:100px;padding:6px 16px;margin-top:14px}
+  .cta{display:block;margin-top:28px;padding:16px;border-radius:100px;background:{{ color }};
+    color:#fff;font-size:16px;font-weight:900;text-decoration:none;box-shadow:0 8px 22px rgba(0,0,0,.14)}
+  .sub{margin-top:14px;font-size:12px;color:#999}
+  .brand{margin-top:26px;font-size:13px;font-weight:900;color:#b8bcc4}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">断り上手診断</span>
+    <div class="art"><img src="{{ char_img }}" alt="{{ name }}"/></div>
+    <div class="lead">あなたの断り方タイプは</div>
+    <div class="name">{{ name }}</div>
+    <div class="code">{{ code }}</div>
+    <div class="tag">{{ tag }}</div>
+    <a class="cta" href="/">あなたも診断してみる →</a>
+    <div class="sub">全16タイプ＋相性つき／無料・登録不要</div>
+    <div class="brand">やんわりNO</div>
+  </div>
+</body>
+</html>
