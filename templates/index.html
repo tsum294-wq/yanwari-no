@@ -295,6 +295,19 @@
     .qr-code{font-size:28px;font-weight:900;letter-spacing:3px;margin-bottom:5px}
     .qr-char-name{font-size:15px;font-weight:900;letter-spacing:-.2px;margin-bottom:7px;line-height:1.3}
     .qr-tag{display:inline-block;padding:3px 11px;border-radius:100px;font-size:10px;font-weight:700}
+    /* 相性カード */
+    .qr-match-card{background:var(--surface);border-radius:22px;padding:16px 16px 8px;box-shadow:0 4px 18px var(--shadow);margin-bottom:14px}
+    .qr-match-ttl{font-size:13px;font-weight:900;text-align:center;margin-bottom:4px}
+    .qr-match-row{display:flex;align-items:center;gap:12px;padding:12px 2px;border-bottom:1px solid var(--border)}
+    .qr-match-row:last-child{border-bottom:none}
+    .qr-match-art{width:58px;height:58px;border-radius:14px;flex-shrink:0;object-fit:cover;background:var(--coral-pale)}
+    .qr-match-info{flex:1;min-width:0}
+    .qr-match-badge{display:inline-block;font-size:10.5px;font-weight:900;padding:3px 9px;border-radius:100px;margin-right:7px;vertical-align:middle}
+    .qr-match-badge.good{background:#ECFDF5;color:#10B981}
+    .qr-match-badge.bad{background:#FEF2F2;color:#EF4444}
+    .qr-match-name{font-size:13.5px;font-weight:900;vertical-align:middle}
+    .qr-match-code{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-left:6px;vertical-align:middle}
+    .qr-match-reason{font-size:11.5px;color:var(--sub);line-height:1.6;margin-top:5px}
     .qr-dims-card{background:var(--surface);border-radius:18px;padding:18px 16px;box-shadow:0 4px 16px var(--shadow);margin-bottom:14px}
     .qr-dims-ttl{font-size:12px;font-weight:800;margin-bottom:14px;color:var(--text)}
     .qr-dim{margin-bottom:15px}
@@ -1148,6 +1161,17 @@ const _DIM_NAMES = {W:'感情',K:'論理',F:'理想',R:'現実',T:'気遣い',A:
 const _DIM_PAIRS = [['W','K'],['F','R'],['T','A'],['P','S']];
 const _DIM_HEADS = ['感情 / 論理','理想 / 現実','気遣い / 自分軸','慎重 / 即決'];
 
+// 相性ロジック：ベスト=「感情/論理」「気遣い/自分軸」が同じで理想・ペースが逆(補い合う)／要注意=4軸すべて逆
+const _FLIP = {W:'K',K:'W',F:'R',R:'F',T:'A',A:'T',P:'S',S:'P'};
+function _compat(code) {
+  const c = code.split('');
+  const matchCode = c[0] + _FLIP[c[1]] + c[2] + _FLIP[c[3]];
+  const clashCode = c.map(x => _FLIP[x]).join('');
+  const mReason = `「${_DIM_NAMES[c[0]]}」と「${_DIM_NAMES[c[2]]}」の感覚が同じで、根っこの部分で分かり合える。理想とペースが違う分、ほどよく補い合える相手。`;
+  const cReason = '断り方の4つの軸がすべて真逆。価値観が正反対だからこそ、噛み合うにはお互いの歩み寄りが必要かも。';
+  return { matchCode, clashCode, mReason, cReason };
+}
+
 // SVG character illustrations — Japanese flat illustration style
 // 4 groups: WF(dreamy warm), WR(grounded warm), KF(analytical cool), KR(decisive cool)
 function _charSvg(grp, c, bg) {
@@ -1294,7 +1318,7 @@ function showQuizResult() {
     _qAns.P >= _qAns.S ? 'P':'S',
   ].join('');
   const t = QUIZ_TYPES[code] || QUIZ_TYPES['WRTS'];
-  const charSvg = _charSvg(t.grp, t.color, t.bg);
+  const cp = _compat(code), mt = QUIZ_TYPES[cp.matchCode], ct = QUIZ_TYPES[cp.clashCode];
   const dimHtml = _DIM_PAIRS.map(([a,b], i) => {
     const va = _qAns[a], vb = _qAns[b], tot = va + vb || 1;
     const lpct = Math.round(va/tot*100), rpct = 100 - lpct;
@@ -1327,6 +1351,23 @@ function showQuizResult() {
     <div class="qr-dims-card">
       <div class="qr-dims-ttl">あなたの断りスタイル</div>
       ${dimHtml}
+    </div>
+    <div class="qr-match-card">
+      <div class="qr-match-ttl">断り方タイプの相性</div>
+      <div class="qr-match-row">
+        <img class="qr-match-art" src="/static/images/${cp.matchCode}.png" alt="${mt.name}">
+        <div class="qr-match-info">
+          <div><span class="qr-match-badge good">相性◎</span><span class="qr-match-name">${mt.name}</span><span class="qr-match-code">${cp.matchCode}</span></div>
+          <div class="qr-match-reason">${cp.mReason}</div>
+        </div>
+      </div>
+      <div class="qr-match-row">
+        <img class="qr-match-art" src="/static/images/${cp.clashCode}.png" alt="${ct.name}">
+        <div class="qr-match-info">
+          <div><span class="qr-match-badge bad">相性△</span><span class="qr-match-name">${ct.name}</span><span class="qr-match-code">${cp.clashCode}</span></div>
+          <div class="qr-match-reason">${cp.cReason}</div>
+        </div>
+      </div>
     </div>
     <div class="result-desc">${t.desc}</div>
     <div class="result-advice" style="background:${t.bg}"><strong style="color:${t.color};display:block;margin-bottom:6px">💡 アドバイス</strong>${t.advice}</div>
