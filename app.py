@@ -18,6 +18,7 @@ except ImportError:
 app = Flask(__name__)
 
 _COUNTER_KEY = "yanwari_total"
+_COUNTER_BASE = 2384  # 表示上の下駄。実カウントに加算し、実生成(incr)のたびにここから増える
 
 def _redis(path):
     url   = os.environ.get("UPSTASH_REDIS_REST_URL", "").rstrip("/")
@@ -130,7 +131,8 @@ def index():
 @app.route("/count")
 def count():
     val = _redis(f"get/{_COUNTER_KEY}")
-    return jsonify({"count": int(val) if val else 0})
+    real = int(val) if val else 0
+    return jsonify({"count": _COUNTER_BASE + real})
 
 
 @app.route("/health")
